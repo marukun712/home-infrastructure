@@ -21,6 +21,8 @@ in
 
   networking.hostName = "ria";
 
+  boot.kernel.sysctl."net.ipv4.ip_forward" = 1;
+
   networking.wireguard.interfaces.wg0 = {
     ips = [ "10.0.0.1/24" ];
     listenPort = 51820;
@@ -32,46 +34,18 @@ in
 
   networking.firewall = {
     enable = true;
+    trustedInterfaces = [ "wg0" ];
     allowedTCPPorts = [
       22
-      445
-      2283
       4000
     ];
     allowedUDPPorts = [
       51820
-      137
-      138
     ];
   };
 
   containers.photo = {
     autoStart = true;
-    privateNetwork = true;
-    hostAddress = "10.200.0.1";
-    localAddress = "10.200.0.2";
-    forwardPorts = [
-      {
-        hostPort = 2283;
-        containerPort = 2283;
-        protocol = "tcp";
-      }
-      {
-        hostPort = 445;
-        containerPort = 445;
-        protocol = "tcp";
-      }
-      {
-        hostPort = 137;
-        containerPort = 137;
-        protocol = "udp";
-      }
-      {
-        hostPort = 138;
-        containerPort = 138;
-        protocol = "udp";
-      }
-    ];
     bindMounts."/mnt/data" = {
       hostPath = "/mnt/data";
       isReadOnly = false;
@@ -99,23 +73,12 @@ in
           isNormalUser = true;
           initialPassword = "changeme";
         };
-        networking.firewall.enable = false;
         system.stateVersion = "25.05";
       };
   };
 
   containers.services = {
     autoStart = true;
-    privateNetwork = true;
-    hostAddress = "10.200.1.1";
-    localAddress = "10.200.1.2";
-    forwardPorts = [
-      {
-        hostPort = 4000;
-        containerPort = 4000;
-        protocol = "tcp";
-      }
-    ];
     config =
       { pkgs, ... }:
       {
@@ -132,7 +95,6 @@ in
           isNormalUser = true;
           initialPassword = "changeme";
         };
-        networking.firewall.enable = false;
         system.stateVersion = "25.05";
       };
   };

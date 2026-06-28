@@ -1,103 +1,99 @@
 # home-infrastructure
 
-自宅サーバーの NixOS 設定。宣言的に管理するために書いた。ちゃんと読んでから触ること。
+自宅サーバーの NixOS 設定。触る前にちゃんと読むこと。
 
 ## 構成
 
-3つの VM に役割を分けてある。理由は分かると思うけど一応書いておく。
-
-```
-router   ... WireGuard + NAT + DHCP。外との窓口はここだけ。
-photo    ... Immich + Samba。データは /mnt/data にマウントした別ディスクに置く。
-services ... n-high-lovelive。それだけ。
-```
-
-ネットワークの全体像はこう。
+サーバーマシン 1台に NixOS をベアメタルで入れて、コンテナで役割を分けてある。
+PVE は使わない。全部 Nix で書く。
 
 ```
 Internet
     |
-  F660P (192.168.1.x)
-    |  WiFi
-  PVE ホスト
+  F660P (ゲートウェイ。ルーター・FW の役割はサーバーが担う)
     |
-  router VM (192.168.10.1)  <-- WireGuard の入口はここだけ
+  wlp2s0 (NixOS "ria", グローバル IPv6)
     |
-  192.168.10.0/24
-    |-- photo VM    (DHCP で取得)
-    `-- services VM (DHCP で取得)
+    +-- wg0 (10.0.0.1/24)  WireGuard の入口
+          +-- 日常PC       10.0.0.2
+          +-- 開発PC       10.0.0.3
+          +-- スマホ       10.0.0.4
+          +-- photo        Immich :2283, Samba :445  (VPN経由のみ)
+          +-- services     lovehigh :4000  (外部公開)
 ```
 
-外部からの入口は WireGuard の UDP 51820 のみ。それ以外は閉じてある。
+コンテナはホストのネットワークをそのまま使う。余計な IP 体系は増やさない。
+外から届くのは UDP 51820 (WireGuard) と TCP 4000 (lovehigh) だけ。
+Immich と Samba は VPN に繋いでから `10.0.0.1` を叩く。
 
-## イメージのビルド
+## ファイル構成
+
+```
+flake.nix    全体のエントリーポイント。disko と server を束ねる。
+disko.nix    /dev/sda のパーティション設定 (GPT + EFI 512M + ext4)
+server.nix   設定の本体。WireGuard + コンテナ全部ここ。
+install.sh   インストールスクリプト
+```
+
+## インストール
+
+NixOS の minimal ISO で起動して実行する。
 
 ```bash
-# それぞれ個別にビルドする
-nixos-rebuild build-image --image-variant proxmox --flake .#router
-nixos-rebuild build-image --image-variant proxmox --flake .#photo
-nixos-rebuild build-image --image-variant proxmox --flake .#services
+git clone https://github.com/marukun712/home-infrastructure
+cd home-infrastructure
+bash install.sh
 ```
 
-ビルドが終わると `result/` に成果物が入る。
-
-```bash
-ls result/
-# nixos.vma.zst が入ってるはず
-```
-
-**PVE へのアップロード**
-
-```bash
-# PVE ホストに転送
-scp result/nixos.vma.zst root@<PVEのIP>:/tmp/
-
-# PVE ホストで VM として復元 (VMID は空いてる番号を指定)
-qmrestore /tmp/nixos.vma.zst <VMID>
-```
-
-**PVE のブリッジ設定を忘れずに。** router の eth1 と photo・services の eth0 を同じブリッジに繋ぐこと。
+disko でパーティションを切って、そのまま nixos-install を流す。
 
 ## 初回セットアップ
 
 ### WireGuard 鍵の生成
 
-router VM に入って実行する。
+サーバーに入って実行する。
 
 ```bash
 wg genkey | tee /etc/wireguard/private | wg pubkey
 ```
 
-公開鍵をクライアント側に渡して、`router.nix` の `peers` に追加する。
+出てきた公開鍵を `server.nix` の `peers` に追加して `nixos-rebuild switch` する。
 
 ```nix
 networking.wireguard.interfaces.wg0.peers = [
   {
     publicKey = "クライアントの公開鍵";
-    allowedIPs = [ "10.0.0.2/32" ];
+    allowedIPs = [ "10.0.0.x/32" ];
   }
 ];
 ```
 
-追加したら `nixos-rebuild switch --flake .#router` で反映。
+### Samba のパスワード
 
-### Samba のパスワード設定
-
-Samba のパスワードだけは宣言的に設定できない。photo VM に入って1回だけ実行すること。
+Samba だけは宣言的に設定できない。1回だけ手動で実行すること。
 
 ```bash
-smbpasswd -a maril
+nixos-container run photo -- smbpasswd -a maril
 ```
+
+### データディスク
+
+photo コンテナは `/mnt/data` にデータを置く。
+OS とは別のディスクをマウントしておくこと。これをやらないと VM 再構築のたびにデータが消える。
 
 ## 設定を変えるとき
 
-基本は該当の `.nix` ファイルを編集して `nixos-rebuild switch` するだけ。
+```bash
+nixos-rebuild switch --flake github:marukun712/home-infrastructure#server
+```
 
-VM を完全に作り直す場合は `build-image` → PVE にインポートし直す。
-photo VM を作り直すときはデータディスク (`/mnt/data`) を忘れずにアタッチすること。データは OS ディスクに置いていない。
+## F660P について
 
-## メモ
+今は有線 LAN がないため、やむなく F660P のファイアウォールを使っている。
+IPv6 パケットフィルターで以下を許可しておくこと。
 
-- F660P のファイアウォールは `低` にしてある。`off` にしない。IoT が死ぬ。
-- SNTP は `ntp.nict.jp`、3600 秒間隔。
-- 内部ネットワーク (`192.168.10.x`) のアドレス体系は何でもよかったけど F660P の `192.168.1.x` と被らないようにこれにした。
+- UDP 51820 (WireGuard)
+- TCP 4000 (lovehigh)
+
+有線 LAN が来たらファイアウォールを off にしてルーター機能をサーバーに完全移管する。
+それまでの暫定対応。
