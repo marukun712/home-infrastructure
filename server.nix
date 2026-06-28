@@ -28,6 +28,8 @@ in
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
+  hardware.enableRedistributableFirmware = true;
+
   networking.hostName = "ria";
   networking.networkmanager.enable = true;
 
