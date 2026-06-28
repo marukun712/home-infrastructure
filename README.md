@@ -15,11 +15,12 @@ Internet
   wlp2s0 (NixOS "ria", グローバル IPv6)
     |
     +-- wg0 (10.0.0.1/24)  WireGuard の入口
-          +-- 日常PC       10.0.0.2
-          +-- 開発PC       10.0.0.3
-          +-- スマホ       10.0.0.4
-          +-- photo        Immich :2283, Samba :445  (VPN経由のみ)
-          +-- services     lovehigh :4000  (外部公開)
+    |     +-- 日常PC       10.0.0.2
+    |     +-- 開発PC       10.0.0.3
+    |     +-- スマホ       10.0.0.4
+    |     +-- photo        Immich :2283, Samba :445  (VPN経由のみ)
+    |
+    +-- services           lovehigh :4000  (外部公開)
 ```
 
 コンテナはホストのネットワークをそのまま使う。余計な IP 体系は増やさない。
