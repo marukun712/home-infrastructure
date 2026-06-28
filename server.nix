@@ -85,7 +85,6 @@ in
         services.samba-wsdd.enable = true;
         users.users.maril = {
           isNormalUser = true;
-          initialPassword = "changeme";
         };
         system.stateVersion = "26.05";
       };
@@ -107,7 +106,6 @@ in
         };
         users.users.maril = {
           isNormalUser = true;
-          initialPassword = "changeme";
         };
         system.stateVersion = "26.05";
       };
@@ -115,13 +113,10 @@ in
 
   services.openssh.enable = true;
 
-  users.users.root.initialPassword = "changeme";
-
   users.users.maril = {
     isNormalUser = true;
     extraGroups = [ "wheel" ];
     shell = pkgs.zsh;
-    initialPassword = "changeme";
   };
 
   programs.zsh.enable = true;
