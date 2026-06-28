@@ -17,6 +17,8 @@ let
     src = loveliveSource;
     format = "crystal";
     shardsFile = loveliveSource + "/shards.nix";
+    nativeBuildInputs = [ pkgs.shards ];
+    doInstallCheck = false;
     crystalBinaries.n-high-lovelive = {
       src = "src/n-high-lovelive.cr";
     };
