@@ -60,8 +60,8 @@ in
 
   containers.photo = {
     autoStart = true;
-    bindMounts."/mnt/data" = {
-      hostPath = "/mnt/data";
+    bindMounts."/var/lib/photo" = {
+      hostPath = "/var/lib/photo";
       isReadOnly = false;
     };
     config =
@@ -69,14 +69,14 @@ in
       {
         services.immich = {
           enable = true;
-          mediaLocation = "/mnt/data/immich";
+          mediaLocation = "/var/lib/photo/immich";
         };
         services.samba = {
           enable = true;
           settings = {
             global.workgroup = "WORKGROUP";
             photos = {
-              path = "/mnt/data/samba";
+              path = "/var/lib/photo/samba";
               "valid users" = "maril";
               writable = "yes";
             };
