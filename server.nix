@@ -15,9 +15,10 @@ let
     pname = "n-high-lovelive";
     version = "0.1.0";
     src = loveliveSource;
+    format = "crystal";
     shardsFile = loveliveSource + "/shards.nix";
     crystalBinaries.n-high-lovelive = {
-      source = "src/n-high-lovelive.cr";
+      src = "src/n-high-lovelive.cr";
     };
   };
 in
