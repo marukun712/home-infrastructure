@@ -37,11 +37,17 @@ in
     trustedInterfaces = [ "wg0" ];
     allowedTCPPorts = [
       22
-      4000
+      80
+      443
     ];
     allowedUDPPorts = [
       51820
     ];
+  };
+
+  services.caddy = {
+    enable = true;
+    virtualHosts."n-lovehigh.maril.blue".extraConfig = "reverse_proxy localhost:4000";
   };
 
   containers.photo = {
