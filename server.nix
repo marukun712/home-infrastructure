@@ -39,7 +39,18 @@ in
     ips = [ "10.0.0.1/24" ];
     listenPort = 51820;
     privateKeyFile = "/etc/wireguard/private";
-    peers = [ ];
+    peers = [
+      {
+        # aiha
+        publicKey = "FCiP2J1xLRlRqbrSHFHD+zCMfL8c2ihFDpJIrgtxTwc=";
+        allowedIPs = [ "10.0.0.2/32" ];
+      }
+      {
+        # honon
+        publicKey = "h/qyR6sX1Je3xPqvwBca4ELmWvXTOA38LMy2Twsmk2Y=";
+        allowedIPs = [ "10.0.0.3/32" ];
+      }
+    ];
   };
 
   networking.nftables.enable = true;
