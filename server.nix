@@ -29,6 +29,7 @@ in
   boot.loader.efi.canTouchEfiVariables = true;
 
   networking.hostName = "ria";
+  networking.networkmanager.enable = true;
 
   boot.kernel.sysctl."net.ipv4.ip_forward" = 1;
 
