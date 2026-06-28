@@ -79,8 +79,8 @@ nixos-container run photo -- smbpasswd -a maril
 
 ### データディスク 💻
 
-photo コンテナは `/mnt/data` にデータを置く。OS とは別のディスクをマウントしておくこと。
-やり忘れるとサーバー再構築のたびにデータが消えるから注意。
+photo コンテナは `/mnt/data` にデータを置く。HDD 1 台構成のため OS と同じパーティション上にある。
+`nixos-rebuild switch` での運用が前提なので reinstall 時のデータロストは許容範囲とする。
 
 ## SSH でサーバーに入る
 
