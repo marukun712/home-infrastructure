@@ -5,11 +5,17 @@
   ...
 }:
 let
+  loveliveSource = pkgs.fetchFromGitHub {
+    owner = "marukun712";
+    repo = "n-high-lovelive";
+    rev = "1b61854aa2a41b26ddbf824a66539b37b7d91367";
+    hash = "sha256-LpfukTiTUn7XhEJu9UOSkt1u9vK6Z0PfPfUEvOJJSyA=";
+  };
   lovehigh = pkgs.crystal.buildCrystalPackage {
     pname = "n-high-lovelive";
     version = "0.1.0";
-    src = /home/maril/workspace/n-high-lovelive;
-    shardsFile = /home/maril/workspace/n-high-lovelive/shards.nix;
+    src = loveliveSource;
+    shardsFile = loveliveSource + "/shards.nix";
     crystalBinaries.n-high-lovelive = {
       source = "src/n-high-lovelive.cr";
     };
@@ -36,7 +42,6 @@ in
     enable = true;
     trustedInterfaces = [ "wg0" ];
     allowedTCPPorts = [
-      22
       80
       443
     ];
@@ -79,7 +84,7 @@ in
           isNormalUser = true;
           initialPassword = "changeme";
         };
-        system.stateVersion = "25.05";
+        system.stateVersion = "26.05";
       };
   };
 
@@ -101,7 +106,7 @@ in
           isNormalUser = true;
           initialPassword = "changeme";
         };
-        system.stateVersion = "25.05";
+        system.stateVersion = "26.05";
       };
   };
 
@@ -128,5 +133,5 @@ in
     "flakes"
   ];
 
-  system.stateVersion = "25.05";
+  system.stateVersion = "26.05";
 }
