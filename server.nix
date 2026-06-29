@@ -31,26 +31,30 @@ in
   hardware.enableRedistributableFirmware = true;
 
   networking.hostName = "ria";
-  networking.networkmanager = {
-    enable = true;
-    unmanaged = [ "wlp2s0" ];
+  networking.useNetworkd = true;
+
+  systemd.network.networks."10-enp4s0" = {
+    matchConfig.Name = "enp4s0";
+    networkConfig.DHCP = "yes";
   };
 
   networking.interfaces.wlp2s0.ipv4.addresses = [
-    { address = "192.168.10.1"; prefixLength = 24; }
+    {
+      address = "192.168.10.1";
+      prefixLength = 24;
+    }
   ];
 
   services.hostapd = {
     enable = true;
     radios.wlp2s0 = {
-      band = "5g";
-      channel = 36;
-      countryCode = "JP";
+      band = "2g";
+      channel = 6;
       wifi5.enable = true;
       networks.wlp2s0 = {
         ssid = "何それ？知らん！LAN！";
         authentication = {
-          mode = "wpa2-sha256";
+          mode = "wpa2-sha1";
           wpaPasswordFile = "/etc/hostapd/wpa_passphrase";
         };
       };
@@ -67,8 +71,14 @@ in
           subnet = "192.168.10.0/24";
           pools = [ { pool = "192.168.10.10 - 192.168.10.100"; } ];
           option-data = [
-            { name = "routers"; data = "192.168.10.1"; }
-            { name = "domain-name-servers"; data = "1.1.1.1, 8.8.8.8"; }
+            {
+              name = "routers";
+              data = "192.168.10.1";
+            }
+            {
+              name = "domain-name-servers";
+              data = "1.1.1.1, 8.8.8.8";
+            }
           ];
         }
       ];
@@ -105,7 +115,10 @@ in
 
   networking.firewall = {
     enable = true;
-    trustedInterfaces = [ "wg0" "wlp2s0" ];
+    trustedInterfaces = [
+      "wg0"
+      "wlp2s0"
+    ];
     allowedTCPPorts = [
       80
       443
@@ -180,7 +193,7 @@ in
 
   services.openssh.enable = true;
 
-  services.logind.lidSwitch = "ignore";
+  services.logind.settings.Login.HandleLidSwitch = "ignore";
 
   users.users.maril = {
     isNormalUser = true;
@@ -193,6 +206,7 @@ in
   environment.systemPackages = [
     pkgs.git
     pkgs.wireguard-tools
+    pkgs.nixfmt-tree
   ];
 
   nix.settings.experimental-features = [
