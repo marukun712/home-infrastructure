@@ -31,7 +31,48 @@ in
   hardware.enableRedistributableFirmware = true;
 
   networking.hostName = "ria";
-  networking.networkmanager.enable = true;
+  networking.networkmanager = {
+    enable = true;
+    unmanaged = [ "wlp2s0" ];
+  };
+
+  networking.interfaces.wlp2s0.ipv4.addresses = [
+    { address = "192.168.2.1"; prefixLength = 24; }
+  ];
+
+  services.hostapd = {
+    enable = true;
+    radios.wlp2s0 = {
+      ssid = "何それ？知らん！LAN！";
+      band = "2g";
+      channel = 6;
+      wifi4.enable = true;
+      networks.wlp2s0 = {
+        authentication = {
+          mode = "wpa2-sha256";
+          wpaPassphraseFile = "/etc/hostapd/wpa_passphrase";
+        };
+      };
+    };
+  };
+
+  services.dhcpd4 = {
+    enable = true;
+    interfaces = [ "wlp2s0" ];
+    extraConfig = ''
+      subnet 192.168.2.0 netmask 255.255.255.0 {
+        range 192.168.2.10 192.168.2.100;
+        option routers 192.168.2.1;
+        option domain-name-servers 1.1.1.1, 8.8.8.8;
+      }
+    '';
+  };
+
+  networking.nat = {
+    enable = true;
+    internalInterfaces = [ "wlp2s0" ];
+    externalInterface = "enp4s0";
+  };
 
   boot.kernel.sysctl."net.ipv4.ip_forward" = 1;
 
@@ -57,7 +98,7 @@ in
 
   networking.firewall = {
     enable = true;
-    trustedInterfaces = [ "wg0" ];
+    trustedInterfaces = [ "wg0" "wlp2s0" ];
     allowedTCPPorts = [
       80
       443
