@@ -77,6 +77,16 @@ networking.wireguard.interfaces.wg0.peers = [
 ];
 ```
 
+### WiFi AP のパスワード
+
+hostapd のパスワードは config に書かずファイルで管理する。1回だけ手動で作成すること。
+
+```bash
+mkdir -p /etc/hostapd
+echo "パスワード" > /etc/hostapd/wpa_passphrase
+chmod 600 /etc/hostapd/wpa_passphrase
+```
+
 ### Samba のパスワード
 
 Samba だけは宣言的に設定できない。1回だけ手動で実行すること。
