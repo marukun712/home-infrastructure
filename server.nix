@@ -168,6 +168,8 @@ in
 
   services.openssh.enable = true;
 
+  services.logind.lidSwitch = "ignore";
+
   users.users.maril = {
     isNormalUser = true;
     extraGroups = [ "wheel" ];
