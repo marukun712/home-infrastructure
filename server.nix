@@ -164,7 +164,7 @@ in
 
   containers.photo = {
     autoStart = true;
-    hostNetwork = true;
+    hostBridge = true;
     bindMounts."/var/lib/photo" = {
       hostPath = "/var/lib/photo";
       isReadOnly = false;
@@ -197,7 +197,7 @@ in
 
   containers.services = {
     autoStart = true;
-    hostNetwork = true;
+    hostBridge = true;
     config =
       { pkgs, ... }:
       {
