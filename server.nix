@@ -62,6 +62,7 @@ in
       interfaces-config.interfaces = [ "wlp2s0" ];
       subnet4 = [
         {
+          id = 1;
           subnet = "192.168.10.0/24";
           pools = [ { pool = "192.168.10.10 - 192.168.10.100"; } ];
           option-data = [
