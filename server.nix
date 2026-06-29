@@ -124,6 +124,7 @@
       "wlp2s0"
     ];
     allowedTCPPorts = [
+      25
       80
       443
     ];
@@ -139,6 +140,7 @@
         header_up Host marukun712.github.io
       }
     '';
+    virtualHosts."mattermost.maril.blue".extraConfig = "reverse_proxy localhost:8065";
   };
 
   services.immich = {
@@ -159,6 +161,16 @@
     };
   };
   services.samba-wsdd.enable = true;
+
+  services.postfix = {
+    enable = true;
+    hostname = "mail.maril.blue";
+  };
+
+  services.mattermost = {
+    enable = true;
+    siteUrl = "https://mattermost.maril.blue";
+  };
 
   services.openssh = {
     enable = true;
