@@ -50,7 +50,7 @@ in
         ssid = "何それ？知らん！LAN！";
         authentication = {
           mode = "wpa2-sha256";
-          wpaPassphraseFile = "/etc/hostapd/wpa_passphrase";
+          wpaPasswordFile = "/etc/hostapd/wpa_passphrase";
         };
       };
     };
