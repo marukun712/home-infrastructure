@@ -141,38 +141,23 @@
     '';
   };
 
-  containers.photo = {
-    autoStart = true;
-    hostBridge = true;
-    bindMounts."/var/lib/photo" = {
-      hostPath = "/var/lib/photo";
-      isReadOnly = false;
-    };
-    config =
-      { pkgs, ... }:
-      {
-        services.immich = {
-          enable = true;
-          mediaLocation = "/var/lib/photo/immich";
-        };
-        services.samba = {
-          enable = true;
-          settings = {
-            global.workgroup = "WORKGROUP";
-            photos = {
-              path = "/var/lib/photo/samba";
-              "valid users" = "maril";
-              writable = "yes";
-            };
-          };
-        };
-        services.samba-wsdd.enable = true;
-        users.users.maril = {
-          isNormalUser = true;
-        };
-        system.stateVersion = "26.05";
-      };
+  services.immich = {
+    enable = true;
+    mediaLocation = "/var/lib/photo/immich";
   };
+
+  services.samba = {
+    enable = true;
+    settings = {
+      global.workgroup = "WORKGROUP";
+      photos = {
+        path = "/var/lib/photo/samba";
+        "valid users" = "maril";
+        writable = "yes";
+      };
+    };
+  };
+  services.samba-wsdd.enable = true;
 
   services.openssh = {
     enable = true;
