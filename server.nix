@@ -56,16 +56,21 @@ in
     };
   };
 
-  services.dhcpd4 = {
+  services.kea.dhcp4 = {
     enable = true;
-    interfaces = [ "wlp2s0" ];
-    extraConfig = ''
-      subnet 192.168.10.0 netmask 255.255.255.0 {
-        range 192.168.10.10 192.168.10.100;
-        option routers 192.168.10.1;
-        option domain-name-servers 1.1.1.1, 8.8.8.8;
-      }
-    '';
+    settings = {
+      interfaces-config.interfaces = [ "wlp2s0" ];
+      subnet4 = [
+        {
+          subnet = "192.168.10.0/24";
+          pools = [ { pool = "192.168.10.10 - 192.168.10.100"; } ];
+          option-data = [
+            { name = "routers"; data = "192.168.10.1"; }
+            { name = "domain-name-servers"; data = "1.1.1.1, 8.8.8.8"; }
+          ];
+        }
+      ];
+    };
   };
 
   networking.nat = {
