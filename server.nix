@@ -144,6 +144,7 @@
   services.immich = {
     enable = true;
     mediaLocation = "/var/lib/photo/immich";
+    host = "10.0.0.1";
   };
 
   services.samba = {
