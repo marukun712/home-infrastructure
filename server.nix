@@ -116,6 +116,11 @@ in
   services.caddy = {
     enable = true;
     virtualHosts."n-lovehigh.maril.blue".extraConfig = "reverse_proxy localhost:4000";
+    virtualHosts."maril.blue".extraConfig = ''
+      reverse_proxy https://marukun712.github.io {
+        header_up Host marukun712.github.io
+      }
+    '';
   };
 
   containers.photo = {
