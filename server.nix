@@ -37,7 +37,7 @@ in
   };
 
   networking.interfaces.wlp2s0.ipv4.addresses = [
-    { address = "192.168.2.1"; prefixLength = 24; }
+    { address = "192.168.10.1"; prefixLength = 24; }
   ];
 
   services.hostapd = {
@@ -60,9 +60,9 @@ in
     enable = true;
     interfaces = [ "wlp2s0" ];
     extraConfig = ''
-      subnet 192.168.2.0 netmask 255.255.255.0 {
-        range 192.168.2.10 192.168.2.100;
-        option routers 192.168.2.1;
+      subnet 192.168.10.0 netmask 255.255.255.0 {
+        range 192.168.10.10 192.168.10.100;
+        option routers 192.168.10.1;
         option domain-name-servers 1.1.1.1, 8.8.8.8;
       }
     '';
