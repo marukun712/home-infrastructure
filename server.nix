@@ -4,26 +4,6 @@
   lib,
   ...
 }:
-let
-  loveliveSource = pkgs.fetchFromGitHub {
-    owner = "marukun712";
-    repo = "n-high-lovelive";
-    rev = "1b61854aa2a41b26ddbf824a66539b37b7d91367";
-    hash = "sha256-LpfukTiTUn7XhEJu9UOSkt1u9vK6Z0PfPfUEvOJJSyA=";
-  };
-  lovehigh = pkgs.crystal.buildCrystalPackage {
-    pname = "n-high-lovelive";
-    version = "0.1.0";
-    src = loveliveSource;
-    format = "crystal";
-    shardsFile = loveliveSource + "/shards.nix";
-    nativeBuildInputs = [ pkgs.shards ];
-    doInstallCheck = false;
-    crystalBinaries.n-high-lovelive = {
-      src = "src/n-high-lovelive.cr";
-    };
-  };
-in
 {
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
@@ -154,7 +134,6 @@ in
 
   services.caddy = {
     enable = true;
-    virtualHosts."n-lovehigh.maril.blue".extraConfig = "reverse_proxy localhost:4000";
     virtualHosts."maril.blue".extraConfig = ''
       reverse_proxy https://marukun712.github.io {
         header_up Host marukun712.github.io
@@ -188,28 +167,6 @@ in
           };
         };
         services.samba-wsdd.enable = true;
-        users.users.maril = {
-          isNormalUser = true;
-        };
-        system.stateVersion = "26.05";
-      };
-  };
-
-  containers.services = {
-    autoStart = true;
-    hostBridge = true;
-    config =
-      { pkgs, ... }:
-      {
-        systemd.services.lovehigh = {
-          wantedBy = [ "multi-user.target" ];
-          after = [ "network.target" ];
-          serviceConfig = {
-            ExecStart = "${lovehigh}/bin/n-high-lovelive";
-            Restart = "always";
-            User = "maril";
-          };
-        };
         users.users.maril = {
           isNormalUser = true;
         };
