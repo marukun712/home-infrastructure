@@ -45,6 +45,13 @@ in
     }
   ];
 
+  networking.interfaces.wlp2s0.ipv6.addresses = [
+    {
+      address = "fd00::1";
+      prefixLength = 64;
+    }
+  ];
+
   services.hostapd = {
     enable = true;
     radios.wlp2s0 = {
@@ -85,6 +92,22 @@ in
     };
   };
 
+  services.radvd = {
+    enable = true;
+    config = ''
+      interface wlp2s0 {
+        AdvSendAdvert on;
+        MinRtrAdvInterval 3;
+        MaxRtrAdvInterval 10;
+        prefix fd00::/64 {
+          AdvOnLink on;
+          AdvAutonomous on;
+        };
+        RDNSS 2606:4700:4700::1111 2001:4860:4860::8888 {};
+      };
+    '';
+  };
+
   networking.nat = {
     enable = true;
     internalInterfaces = [ "wlp2s0" ];
@@ -92,6 +115,7 @@ in
   };
 
   boot.kernel.sysctl."net.ipv4.ip_forward" = 1;
+  boot.kernel.sysctl."net.ipv6.conf.all.forwarding" = 1;
 
   networking.wireguard.interfaces.wg0 = {
     ips = [ "10.0.0.1/24" ];
