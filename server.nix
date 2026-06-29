@@ -45,6 +45,7 @@ in
     radios.wlp2s0 = {
       band = "5g";
       channel = 36;
+      countryCode = "JP";
       wifi5.enable = true;
       networks.wlp2s0 = {
         ssid = "何それ？知らん！LAN！";
