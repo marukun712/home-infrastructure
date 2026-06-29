@@ -43,9 +43,9 @@ in
   services.hostapd = {
     enable = true;
     radios.wlp2s0 = {
-      band = "2g";
-      channel = 6;
-      wifi4.enable = true;
+      band = "5g";
+      channel = 36;
+      wifi5.enable = true;
       networks.wlp2s0 = {
         ssid = "何それ？知らん！LAN！";
         authentication = {
