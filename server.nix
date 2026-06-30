@@ -227,6 +227,10 @@
     ];
   };
 
+  services.grafana.settings.security.secret_key = {
+    _secret = "/etc/grafana/secret_key";
+  };
+
   services.mattermost.extraConfig = {
     MetricsSettings = {
       Enable = true;
