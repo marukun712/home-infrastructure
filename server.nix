@@ -71,6 +71,14 @@
     };
   };
 
+  systemd.services.kea-dhcp4-server = {
+    after = [
+      "hostapd.service"
+      "sys-subsystem-net-devices-wlp2s0.device"
+    ];
+    requires = [ "hostapd.service" ];
+  };
+
   services.radvd = {
     enable = true;
     config = ''
@@ -196,16 +204,11 @@
           "thermal_zone"
         ];
       };
-      wireguard.enable = true;
     };
     scrapeConfigs = [
       {
         job_name = "node";
         static_configs = [ { targets = [ "localhost:9100" ]; } ];
-      }
-      {
-        job_name = "wireguard";
-        static_configs = [ { targets = [ "localhost:9586" ]; } ];
       }
     ];
   };
