@@ -139,9 +139,6 @@
       51820
     ];
     interfaces.wlp2s0.allowedUDPPorts = [ 67 ];
-    extraForwardRules = ''
-      iifname "wg0" oifname "wg0" accept
-    '';
   };
 
   services.caddy = {
@@ -200,10 +197,6 @@
         ];
       };
       wireguard.enable = true;
-      kea = {
-        enable = true;
-        targets = [ "/run/kea/kea-dhcp4.socket" ];
-      };
     };
     scrapeConfigs = [
       {
@@ -214,27 +207,7 @@
         job_name = "wireguard";
         static_configs = [ { targets = [ "localhost:9586" ]; } ];
       }
-      {
-        job_name = "kea";
-        static_configs = [ { targets = [ "localhost:9547" ]; } ];
-      }
-      {
-        job_name = "caddy";
-        static_configs = [ { targets = [ "localhost:2019" ]; } ];
-        metrics_path = "/metrics";
-      }
-      {
-        job_name = "mattermost";
-        static_configs = [ { targets = [ "localhost:8067" ]; } ];
-      }
     ];
-  };
-
-  services.mattermost.extraConfig = {
-    MetricsSettings = {
-      Enable = true;
-      ListenAddress = "localhost:8067";
-    };
   };
 
   services.mattermost = {
