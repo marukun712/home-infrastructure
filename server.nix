@@ -103,14 +103,25 @@
     privateKeyFile = "/etc/wireguard/private";
     peers = [
       {
-        # aiha
+        # aiha (nixos-develop)
         publicKey = "FCiP2J1xLRlRqbrSHFHD+zCMfL8c2ihFDpJIrgtxTwc=";
         allowedIPs = [ "10.0.0.2/32" ];
       }
       {
-        # honon
+        # honon (bazzite-os)
         publicKey = "h/qyR6sX1Je3xPqvwBca4ELmWvXTOA38LMy2Twsmk2Y=";
         allowedIPs = [ "10.0.0.3/32" ];
+      }
+      {
+        # rina (iphone)
+        publicKey = " IiOdLf9WT48gBFrAh8XrDW/cI1Mcm+ATAqNI8maSZ1I=";
+        allowedIPs = [ "10.0.0.4/32" ];
+      }
+
+      {
+        # seri (oppo-pad-air)
+        publicKey = "Hlwem/2EUzx4hZSc31a74FjjFVkOCzZVFRT62pRyH1k=";
+        allowedIPs = [ "10.0.0.5/32" ];
       }
     ];
   };
