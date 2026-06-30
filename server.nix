@@ -50,7 +50,11 @@
   services.kea.dhcp4 = {
     enable = true;
     settings = {
-      interfaces-config.interfaces = [ "wlp2s0" ];
+      "interfaces-config" = {
+        interfaces = [ "wlp2s0" ];
+        "service-sockets-max-retries" = 10;
+        "service-sockets-retry-wait-time" = 5000;
+      };
       subnet4 = [
         {
           id = 1;
@@ -69,14 +73,6 @@
         }
       ];
     };
-  };
-
-  systemd.services.kea-dhcp4-server = {
-    after = [
-      "hostapd.service"
-      "sys-subsystem-net-devices-wlp2s0.device"
-    ];
-    requires = [ "hostapd.service" ];
   };
 
   services.radvd = {
