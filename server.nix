@@ -36,8 +36,7 @@
     enable = true;
     radios.wlp2s0 = {
       band = "2g";
-      channel = 6;
-      wifi5.enable = true;
+      wifi4.enable = true;
       networks.wlp2s0 = {
         ssid = "何それ？知らん！LAN！";
         authentication = {
@@ -140,6 +139,9 @@
       51820
     ];
     interfaces.wlp2s0.allowedUDPPorts = [ 67 ];
+    extraForwardRules = ''
+      iifname "wg0" oifname "wg0" accept
+    '';
   };
 
   services.caddy = {
