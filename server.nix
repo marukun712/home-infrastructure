@@ -117,7 +117,6 @@
         publicKey = " IiOdLf9WT48gBFrAh8XrDW/cI1Mcm+ATAqNI8maSZ1I=";
         allowedIPs = [ "10.0.0.4/32" ];
       }
-
       {
         # seri (oppo-pad-air)
         publicKey = "Hlwem/2EUzx4hZSc31a74FjjFVkOCzZVFRT62pRyH1k=";
@@ -132,7 +131,6 @@
     enable = true;
     trustedInterfaces = [
       "wg0"
-      "wlp2s0"
     ];
     allowedTCPPorts = [
       25
@@ -142,6 +140,7 @@
     allowedUDPPorts = [
       51820
     ];
+    interfaces.wlp2s0.allowedUDPPorts = [ 67 ];
   };
 
   services.caddy = {
@@ -157,7 +156,7 @@
   services.immich = {
     enable = true;
     mediaLocation = "/var/lib/photo/immich";
-    host = "10.0.0.1";
+    host = "0.0.0.0";
   };
 
   services.samba = {
