@@ -177,6 +177,7 @@
       http_addr = "10.0.0.1";
       http_port = 3000;
     };
+    settings.security.secret_key = "$__file{/etc/grafana/private}";
   };
 
   services.prometheus = {
@@ -225,10 +226,6 @@
         static_configs = [ { targets = [ "localhost:8067" ]; } ];
       }
     ];
-  };
-
-  services.grafana.settings.security.secret_key = {
-    _secret = "/etc/grafana/secret_key";
   };
 
   services.mattermost.extraConfig = {
