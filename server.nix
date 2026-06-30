@@ -114,7 +114,7 @@
       }
       {
         # rina (iphone)
-        publicKey = " IiOdLf9WT48gBFrAh8XrDW/cI1Mcm+ATAqNI8maSZ1I=";
+        publicKey = "IiOdLf9WT48gBFrAh8XrDW/cI1Mcm+ATAqNI8maSZ1I=";
         allowedIPs = [ "10.0.0.4/32" ];
       }
       {
@@ -133,7 +133,6 @@
       "wg0"
     ];
     allowedTCPPorts = [
-      25
       80
       443
     ];
@@ -172,9 +171,67 @@
   };
   services.samba-wsdd.enable = true;
 
-  services.postfix = {
+  services.grafana = {
     enable = true;
-    hostname = "mail.maril.blue";
+    settings.server = {
+      http_addr = "10.0.0.1";
+      http_port = 3000;
+    };
+  };
+
+  services.prometheus = {
+    enable = true;
+    exporters = {
+      node = {
+        enable = true;
+        enabledCollectors = [
+          "cpu"
+          "diskstats"
+          "filesystem"
+          "meminfo"
+          "netdev"
+          "netstat"
+          "processes"
+          "systemd"
+          "thermal_zone"
+        ];
+      };
+      wireguard.enable = true;
+      kea = {
+        enable = true;
+        targets = [ "/run/kea/kea-dhcp4.socket" ];
+      };
+    };
+    scrapeConfigs = [
+      {
+        job_name = "node";
+        static_configs = [ { targets = [ "localhost:9100" ]; } ];
+      }
+      {
+        job_name = "wireguard";
+        static_configs = [ { targets = [ "localhost:9586" ]; } ];
+      }
+      {
+        job_name = "kea";
+        static_configs = [ { targets = [ "localhost:9547" ]; } ];
+      }
+      {
+        job_name = "caddy";
+        static_configs = [ { targets = [ "localhost:2019" ]; } ];
+        metrics_path = "/metrics";
+      }
+      {
+        job_name = "mattermost";
+        static_configs = [ { targets = [ "localhost:8067" ]; } ];
+      }
+    ];
+  };
+
+  services.mattermost.extraConfig = {
+    MetricsSettings = {
+      Enable = true;
+      ListenAddress = "localhost:8067";
+    };
   };
 
   services.mattermost = {
