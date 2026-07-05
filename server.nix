@@ -141,7 +141,7 @@
       }
       {
         # akaz
-        publicKey = "fqu+ScyxyuRgpS9uZ5UFp7Jq+hOrchGIzVMHCBfDnAs=";
+        publicKey = "6hhYJwWIEvwEkdIEzdS2A0CS6IG4xJey6gLEdv4Hi00=";
         allowedIPs = [ "10.0.10.3/32" ];
       }
     ];
