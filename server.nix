@@ -128,6 +128,25 @@
     ];
   };
 
+  # 友人間 VPN
+  networking.wireguard.interfaces.wg1 = {
+    ips = [ "10.0.10.1/24" ];
+    listenPort = 51821;
+    privateKeyFile = "/etc/wireguard/maril-network/private";
+    peers = [
+      {
+        # aiha
+        publicKey = "Y9qHNh3YyWqntvodQ2ZjVpOpDvD8/w9+hazPU/F1DBY=";
+        allowedIPs = [ "10.0.10.2/32" ];
+      }
+      {
+        # akaz
+        publicKey = "fqu+ScyxyuRgpS9uZ5UFp7Jq+hOrchGIzVMHCBfDnAs=";
+        allowedIPs = [ "10.0.10.3/32" ];
+      }
+    ];
+  };
+
   networking.nftables.enable = true;
 
   networking.firewall = {
@@ -141,8 +160,12 @@
     ];
     allowedUDPPorts = [
       51820
+      51821
     ];
     interfaces.wlp2s0.allowedUDPPorts = [ 67 ];
+    extraForwardRules = ''
+      iifname "wg1" oifname "wg1" accept
+    '';
   };
 
   services.caddy = {
