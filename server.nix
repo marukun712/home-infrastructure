@@ -266,6 +266,7 @@
     pkgs.git
     pkgs.wireguard-tools
     pkgs.nixfmt-tree
+    pkgs.bash
   ];
 
   nix.settings.experimental-features = [
