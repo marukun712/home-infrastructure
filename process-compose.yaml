@@ -3,13 +3,13 @@ version: "0.5"
 processes:
   nijiiro:
     command: "nix develop -c deno task start"
-    working_dir: "~/workspace/nijiiro"
+    working_dir: "/home/maril/workspace/nijiiro"
     availability:
       restart: "on_failure"
       max_restarts: 3
   n-high-lovelive:
     command: "./bin/n-high-lovelive"
-    working_dir: "~/workspace/n-high-lovelive"
+    working_dir: "/home/maril/workspace/n-high-lovelive"
     availability:
       restart: "on_failure"
       max_restarts: 3
