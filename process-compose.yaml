@@ -8,6 +8,13 @@ processes:
     availability:
       restart: "on_failure"
       max_restarts: 3
+  ll-wiki:
+    command: "nix develop -c deno task start"
+    working_dir: "/home/maril/workspace/ll-wiki"
+    log_location: /home/maril/ll-wiki.log
+    availability:
+      restart: "on_failure"
+      max_restarts: 3
   n-high-lovelive:
     command: "nix develop -c crystal run --release src/n-high-lovelive.cr"
     working_dir: "/home/maril/workspace/n-high-lovelive"
