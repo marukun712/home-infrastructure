@@ -184,6 +184,7 @@
     wantedBy = [ "multi-user.target" ];
     serviceConfig = {
       ExecStart = "${pkgs.process-compose}/bin/process-compose -f ${./process-compose.yaml} up";
+      Environment = "PATH=/run/current-system/sw/bin:/usr/bin:/bin";
       Restart = "always";
     };
   };
