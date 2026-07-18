@@ -176,6 +176,16 @@
       }
     '';
     virtualHosts."mattermost.maril.blue".extraConfig = "reverse_proxy localhost:8065";
+    virtualHosts."pds.maril.blue".extraConfig = "reverse_proxy localhost:8001";
+    virtualHosts."n-lovehigh.maril.blue".extraConfig = "reverse_proxy localhost:8002";
+  };
+
+  systemd.services.process-compose = {
+    wantedBy = [ "multi-user.target" ];
+    serviceConfig = {
+      ExecStart = "${pkgs.process-compose}/bin/process-compose -f ./process-compose.yaml up";
+      Restart = "always";
+    };
   };
 
   services.immich = {
