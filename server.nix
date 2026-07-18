@@ -183,6 +183,8 @@
   systemd.services.process-compose = {
     wantedBy = [ "multi-user.target" ];
     serviceConfig = {
+      User = "maril";
+      Group = "users";
       ExecStart = "${pkgs.process-compose}/bin/process-compose --tui=false -f ${./process-compose.yaml} up";
       Environment = "PATH=/run/current-system/sw/bin:/usr/bin:/bin";
       Restart = "always";
