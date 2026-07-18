@@ -7,7 +7,7 @@ processes:
     availability:
       restart: "on_failure"
       max_restarts: 3
-  nijiiro:
+  n-high-lovelive:
     command: "./bin/n-high-lovelive"
     working_dir: "~/workspace/n-high-lovelive"
     availability:
