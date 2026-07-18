@@ -183,7 +183,7 @@
   systemd.services.process-compose = {
     wantedBy = [ "multi-user.target" ];
     serviceConfig = {
-      ExecStart = "${pkgs.process-compose}/bin/process-compose -f ./process-compose.yaml up";
+      ExecStart = "${pkgs.process-compose}/bin/process-compose -f ${./process-compose.yaml} up";
       Restart = "always";
     };
   };
