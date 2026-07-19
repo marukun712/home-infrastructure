@@ -209,7 +209,9 @@
       };
     };
   };
+
   services.samba-wsdd.enable = true;
+  services.tailscale.enable = true;
 
   services.grafana = {
     enable = true;
