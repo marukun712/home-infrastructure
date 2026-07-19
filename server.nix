@@ -177,7 +177,6 @@
     '';
     virtualHosts."mattermost.maril.blue".extraConfig = "reverse_proxy localhost:8065";
     virtualHosts."ll-wiki.maril.blue".extraConfig = "reverse_proxy localhost:8000";
-    virtualHosts."pds.maril.blue".extraConfig = "reverse_proxy localhost:8001";
     virtualHosts."n-lovehigh.maril.blue".extraConfig = "reverse_proxy localhost:8002";
   };
 
@@ -211,7 +210,6 @@
   };
 
   services.samba-wsdd.enable = true;
-  services.tailscale.enable = true;
 
   services.grafana = {
     enable = true;
@@ -274,6 +272,7 @@
     pkgs.wireguard-tools
     pkgs.nixfmt-tree
     pkgs.bash
+    pkgs.cloudflared
   ];
 
   nix.settings.experimental-features = [
