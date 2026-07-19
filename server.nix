@@ -180,6 +180,20 @@
     virtualHosts."n-lovehigh.maril.blue".extraConfig = "reverse_proxy localhost:8002";
   };
 
+  services.cloudflared = {
+    enable = true;
+    tunnels = {
+      "73f3b7c9-243f-4d19-af80-2046e527906a" = {
+        credentialsFile = "/home/maril/.cloudflared/73f3b7c9-243f-4d19-af80-2046e527906a.json";
+        ingress = {
+          "pds.maril.blue" = "http://localhost:8001";
+        };
+
+        default = "http_status:404";
+      };
+    };
+  };
+
   systemd.services.process-compose = {
     wantedBy = [ "multi-user.target" ];
     serviceConfig = {
