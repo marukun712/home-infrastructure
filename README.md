@@ -138,16 +138,6 @@ PC なら `wg-quick up` で接続、スマホなら WireGuard アプリで QR �
 nixos-rebuild switch --flake github:marukun712/home-infrastructure#server
 ```
 
-## 各サービスへのアクセス方法
-
-| サービス | アクセス先 | 備考 |
-|---|---|---|
-| Immich | http://10.0.0.1:2283 | VPN 接続必須 |
-| Samba | \\\\10.0.0.1\photos | VPN 接続必須 |
-| Grafana | http://10.0.0.1:3000 | VPN 接続必須 |
-| maril.blue | https://maril.blue | 外部公開 |
-| Mattermost | https://mattermost.maril.blue | 外部公開 |
-
 ## 設定を変えるとき
 
 ```bash
