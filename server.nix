@@ -280,6 +280,7 @@
 
   programs.zsh.enable = true;
   programs.nix-ld.enable = true;
+  programs.nh.enable = true;
 
   environment.systemPackages = [
     pkgs.git
