@@ -186,7 +186,7 @@
       "73f3b7c9-243f-4d19-af80-2046e527906a" = {
         credentialsFile = "/home/maril/.cloudflared/73f3b7c9-243f-4d19-af80-2046e527906a.json";
         ingress = {
-          "pds.maril.blue" = "http://127.0.0.1:8001";
+          "nijiiro.maril.blue" = "http://127.0.0.1:8001";
         };
 
         default = "http_status:404";
