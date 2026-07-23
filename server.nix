@@ -288,7 +288,40 @@
     pkgs.nixfmt-tree
     pkgs.bash
     pkgs.cloudflared
+    pkgs.biome
   ];
+
+  programs.direnv = {
+    enable = true;
+    nix-direnv.enable = true;
+  };
+
+  programs.starship = {
+    enable = true;
+  };
+
+  programs.zsh = {
+    enable = true;
+    syntaxHighlighting.enable = true;
+    shellAliases = {
+      ls = "eza --icons --group-directories-first";
+      ll = "eza -la --icons --group-directories-first --git";
+      lt = "eza --tree --level=2 --icons";
+      cat = "bat";
+      nano = "nvim";
+    };
+    plugins = [
+      {
+        name = "zsh-autosuggestions";
+        src = pkgs.fetchFromGitHub {
+          owner = "zsh-users";
+          repo = "zsh-autosuggestions";
+          rev = "v0.4.0";
+          sha256 = "0z6i9wjjklb4lvr7zjhbphibsyx51psv50gm07mbb0kj9058j6kc";
+        };
+      }
+    ];
+  };
 
   nix.settings.experimental-features = [
     "nix-command"
