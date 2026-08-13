@@ -127,7 +127,7 @@
       }
       {
         # kokoro (loq)
-        publicKey = "E96ilHQnqYAqE9hjk82S2hZUCTJ/6LUDpb4kh9/i1wo=";
+        publicKey = "q2BcNmZj6Lrfah9A+nGw2vaouchASifweCxWtXki0Ho=";
         allowedIPs = [ "10.0.0.6/32" ];
       }
     ];
