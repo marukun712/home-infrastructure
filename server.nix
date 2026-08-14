@@ -155,6 +155,11 @@
         publicKey = "QbnFMurtpibXKDC0AAYFI13KMgCYfTbJaUHoVsXOnxI=";
         allowedIPs = [ "10.0.10.4/32" ];
       }
+      {
+        # ryouma
+        publicKey = "wt30EHXGgXRkPFd4l7LQ9N2OabzsJhaEWlaH4y34rSQ=";
+        allowedIPs = [ "10.0.10.5/32" ];
+      }
     ];
   };
 
