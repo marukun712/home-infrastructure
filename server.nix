@@ -157,7 +157,7 @@
       }
       {
         # ryouma
-        publicKey = "oL7GCqCI56WsIQ8hNwpmLEGoIlnoTLIDOfSy54Oo8XU=";
+        publicKey = "9lPsQJIpPk8T+CgxTMHicIpZT2yMicxEclNn5bRU7HE=";
         allowedIPs = [ "10.0.10.5/32" ];
       }
     ];
