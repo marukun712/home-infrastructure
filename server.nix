@@ -191,17 +191,17 @@
     settings = {
       server = {
         interface = [ "0.0.0.0" ];
-        access-control = [ "10.0.0.0/24 allow" ];
+        access-control = [ "10.0.10.0/24 allow" ];
       };
 
       forward-zone = [
         {
           name = "maimai.mode.";
-          forward-addr = [ "10.0.0.2" ];
+          forward-addr = [ "10.0.10.2" ];
         }
         {
           name = "ayasaki.honon.";
-          forward-addr = [ "10.0.0.3" ];
+          forward-addr = [ "10.0.10.3" ];
         }
         {
           name = ".";
