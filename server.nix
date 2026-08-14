@@ -12,6 +12,7 @@
 
   networking.hostName = "ria";
   networking.useNetworkd = true;
+  services.resolved.enable = false;
 
   systemd.network.networks."10-enp4s0" = {
     matchConfig.Name = "enp4s0";
