@@ -150,6 +150,11 @@
         publicKey = "6hhYJwWIEvwEkdIEzdS2A0CS6IG4xJey6gLEdv4Hi00=";
         allowedIPs = [ "10.0.10.3/32" ];
       }
+      {
+        # eita
+        publicKey = "QbnFMurtpibXKDC0AAYFI13KMgCYfTbJaUHoVsXOnxI=";
+        allowedIPs = [ "10.0.10.4/32" ];
+      }
     ];
   };
 
