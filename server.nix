@@ -201,10 +201,6 @@
           forward-addr = [ "10.0.10.2" ];
         }
         {
-          name = "ayasaki.honon.";
-          forward-addr = [ "10.0.10.3" ];
-        }
-        {
           name = ".";
           forward-addr = [
             "1.1.1.1"
