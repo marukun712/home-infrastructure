@@ -168,6 +168,7 @@
       51821
     ];
     interfaces.wlp2s0.allowedUDPPorts = [ 67 ];
+    interfaces.wg1.allowedUDPPorts = [ 53 ];
     extraForwardRules = ''
       iifname "wg1" oifname "wg1" accept
     '';
@@ -183,6 +184,34 @@
     virtualHosts."mattermost.maril.blue".extraConfig = "reverse_proxy localhost:8065";
     virtualHosts."ll-wiki.maril.blue".extraConfig = "reverse_proxy localhost:8000";
     virtualHosts."n-lovehigh.maril.blue".extraConfig = "reverse_proxy localhost:8002";
+  };
+
+  services.unbound = {
+    enable = true;
+    settings = {
+      server = {
+        interface = [ "0.0.0.0" ];
+        access-control = [ "10.0.0.0/24 allow" ];
+      };
+
+      forward-zone = [
+        {
+          name = "maimai.mode.";
+          forward-addr = [ "10.0.0.2" ];
+        }
+        {
+          name = "ayasaki.honon.";
+          forward-addr = [ "10.0.0.3" ];
+        }
+        {
+          name = ".";
+          forward-addr = [
+            "1.1.1.1"
+            "8.8.8.8"
+          ];
+        }
+      ];
+    };
   };
 
   services.cloudflared = {
