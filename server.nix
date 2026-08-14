@@ -201,10 +201,12 @@
 
         local-zone = [
           "maimai.mode. static"
+          "あかず.🍡. static"
         ];
 
         local-data = [
           ''"maimai.mode. IN A 10.0.10.2"''
+          ''"あかず.🍡. IN A 10.0.10.3"''
         ];
       };
 
