@@ -191,15 +191,24 @@
     enable = true;
     settings = {
       server = {
-        interface = [ "0.0.0.0" ];
-        access-control = [ "10.0.10.0/24 allow" ];
+        interface = [
+          "0.0.0.0"
+          "::0"
+        ];
+        access-control = [
+          "10.0.10.0/24 allow"
+        ];
+
+        local-zone = [
+          "maimai.mode. static"
+        ];
+
+        local-data = [
+          ''"maimai.mode. IN A 10.0.10.2"''
+        ];
       };
 
       forward-zone = [
-        {
-          name = "maimai.mode.";
-          forward-addr = [ "10.0.10.2" ];
-        }
         {
           name = ".";
           forward-addr = [
