@@ -206,7 +206,7 @@
 
         local-data = [
           ''"maimai.mode. IN A 10.0.10.2"''
-          ''"xn--l8js9b.xn--7i8h IN CNAME odango.app"''
+          ''"xn--l8js9b.xn--7i8h IN ALIAS odango.app"''
         ];
       };
 
