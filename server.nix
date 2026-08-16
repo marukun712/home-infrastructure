@@ -151,13 +151,13 @@
         allowedIPs = [ "10.0.10.3/32" ];
       }
       {
-        # eita
-        publicKey = "QbnFMurtpibXKDC0AAYFI13KMgCYfTbJaUHoVsXOnxI=";
+        # tmak
+        publicKey = "Z3k/Cj+d1E8GLUFtDhtqcWNLvKzBjQ51IQpXOHsUgCY=";
         allowedIPs = [ "10.0.10.4/32" ];
       }
       {
         # ryouma
-        publicKey = "9lPsQJIpPk8T+CgxTMHicIpZT2yMicxEclNn5bRU7HE=";
+        publicKey = "KT24u/N6eNTs6wm0aFVxqfwRvcyr9Q2ea1WQ2q/XkXU=";
         allowedIPs = [ "10.0.10.5/32" ];
       }
     ];
