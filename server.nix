@@ -194,6 +194,7 @@
       51822
     ];
     interfaces.wlp2s0.allowedUDPPorts = [ 67 ];
+    interfaces.wlp2s0.allowedTCPPorts = [ 22 ];
     interfaces.wg1.allowedUDPPorts = [ 53 ];
     extraForwardRules = ''
       iifname "wg1" oifname "wg1" accept
@@ -339,9 +340,10 @@
     pkgs.wireguard-tools
     pkgs.nixfmt-tree
     pkgs.bash
-    pkgs.cloudflared
     pkgs.biome
     pkgs.eza
+    pkgs.tcpdump
+    pkgs.asterisk
   ];
 
   programs.direnv = {
