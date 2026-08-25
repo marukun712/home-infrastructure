@@ -345,7 +345,7 @@
     pkgs.biome
     pkgs.eza
     pkgs.tcpdump
-    pkgs.pjsip
+    pkgs.baresip
   ];
 
   programs.direnv = {
