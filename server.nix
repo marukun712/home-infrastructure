@@ -141,7 +141,7 @@
     privateKeyFile = "/etc/wireguard/maril-network/private";
     peers = [
       {
-        # aiha
+        # aiha (nixos-develop)
         publicKey = "Y9qHNh3YyWqntvodQ2ZjVpOpDvD8/w9+hazPU/F1DBY=";
         allowedIPs = [ "10.0.10.2/32" ];
       }
@@ -159,6 +159,20 @@
         # ryouma
         publicKey = "KT24u/N6eNTs6wm0aFVxqfwRvcyr9Q2ea1WQ2q/XkXU=";
         allowedIPs = [ "10.0.10.5/32" ];
+      }
+    ];
+  };
+
+  # VPS Relay
+  networking.wireguard.interfaces.wg-relay = {
+    ips = [ "10.0.20.1/24" ];
+    listenPort = 51822;
+    privateKeyFile = "/etc/wireguard/relay/private";
+    peers = [
+      {
+        # VPS
+        publicKey = "D8sC4zMXS5NohFRnX3acc779nemfTaWN3vm2fARSzUg=";
+        allowedIPs = [ "10.0.20.2/32" ];
       }
     ];
   };
@@ -229,20 +243,6 @@
           ];
         }
       ];
-    };
-  };
-
-  services.cloudflared = {
-    enable = true;
-    tunnels = {
-      "73f3b7c9-243f-4d19-af80-2046e527906a" = {
-        credentialsFile = "/home/maril/.cloudflared/73f3b7c9-243f-4d19-af80-2046e527906a.json";
-        ingress = {
-          "nijiiro.maril.blue" = "http://127.0.0.1:8001";
-        };
-
-        default = "http_status:404";
-      };
     };
   };
 
