@@ -287,7 +287,7 @@
     settings.security.secret_key = "$__file{/etc/grafana/private}";
   };
 
-  services.asterisk.enable = true;
+  services.tailscale.enable = true;
 
   services.prometheus = {
     enable = true;
