@@ -194,7 +194,6 @@
       51822
     ];
     interfaces.wlp2s0.allowedUDPPorts = [ 67 ];
-    interfaces.wlp2s0.allowedTCPPorts = [ 22 ];
     interfaces.wg1.allowedUDPPorts = [ 53 ];
     extraForwardRules = ''
       iifname "wg1" oifname "wg1" accept
@@ -319,11 +318,6 @@
   services.mattermost = {
     enable = true;
     siteUrl = "https://mattermost.maril.blue";
-  };
-
-  services.openssh = {
-    enable = true;
-    openFirewall = false;
   };
 
   services.logind.settings.Login.HandleLidSwitch = "ignore";
