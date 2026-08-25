@@ -126,11 +126,6 @@
         publicKey = "Hlwem/2EUzx4hZSc31a74FjjFVkOCzZVFRT62pRyH1k=";
         allowedIPs = [ "10.0.0.5/32" ];
       }
-      {
-        # kokoro (loq)
-        publicKey = "q2BcNmZj6Lrfah9A+nGw2vaouchASifweCxWtXki0Ho=";
-        allowedIPs = [ "10.0.0.6/32" ];
-      }
     ];
   };
 
