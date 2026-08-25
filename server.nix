@@ -288,6 +288,8 @@
     settings.security.secret_key = "$__file{/etc/grafana/private}";
   };
 
+  services.asterisk.enable = true;
+
   services.prometheus = {
     enable = true;
     exporters = {
@@ -343,7 +345,6 @@
     pkgs.biome
     pkgs.eza
     pkgs.tcpdump
-    pkgs.asterisk
   ];
 
   programs.direnv = {
