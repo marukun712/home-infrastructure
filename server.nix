@@ -191,6 +191,7 @@
     allowedUDPPorts = [
       51820
       51821
+      51822
     ];
     interfaces.wlp2s0.allowedUDPPorts = [ 67 ];
     interfaces.wg1.allowedUDPPorts = [ 53 ];
