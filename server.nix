@@ -284,6 +284,7 @@
   };
 
   services.tailscale.enable = true;
+  services.atd.enable = true;
 
   services.prometheus = {
     enable = true;
@@ -336,6 +337,7 @@
     pkgs.eza
     pkgs.tcpdump
     pkgs.baresip
+    pkgs.at
   ];
 
   programs.direnv = {
