@@ -294,15 +294,11 @@
       node = {
         enable = true;
         enabledCollectors = [
-          "cpu"
-          "diskstats"
-          "filesystem"
-          "meminfo"
-          "netdev"
-          "netstat"
-          "processes"
+          "ethtool"
           "systemd"
-          "thermal_zone"
+          "logind"
+          "tcpstat"
+          "wifi"
         ];
       };
     };
