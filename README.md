@@ -27,16 +27,6 @@ wg genkey | tee /etc/wireguard/private | wg pubkey
 ```
 この公開鍵は、クライアント側で登録する。
 
-### WiFi AP のパスワード
-
-hostapd のパスワードは config に書かずファイルで管理する。1回だけ手動で作成すること。
-
-```bash
-mkdir -p /etc/hostapd
-echo "パスワード" > /etc/hostapd/wpa_passphrase
-chmod 600 /etc/hostapd/wpa_passphrase
-```
-
 ### Grafana のシークレットキー
 
 ```bash

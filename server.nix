@@ -21,85 +21,6 @@
     networkConfig.DHCP = "yes";
   };
 
-  networking.interfaces.wlp2s0.ipv4.addresses = [
-    {
-      address = "192.168.10.1";
-      prefixLength = 24;
-    }
-  ];
-
-  networking.interfaces.wlp2s0.ipv6.addresses = [
-    {
-      address = "fd00::1";
-      prefixLength = 64;
-    }
-  ];
-
-  services.hostapd = {
-    enable = true;
-    radios.wlp2s0 = {
-      band = "2g";
-      wifi4.enable = true;
-      networks.wlp2s0 = {
-        ssid = "何それ？知らん！LAN！";
-        authentication = {
-          mode = "wpa2-sha1";
-          wpaPasswordFile = "/etc/hostapd/wpa_passphrase";
-        };
-      };
-    };
-  };
-
-  services.kea.dhcp4 = {
-    enable = true;
-    settings = {
-      "interfaces-config" = {
-        interfaces = [ "wlp2s0" ];
-        "service-sockets-max-retries" = 10;
-        "service-sockets-retry-wait-time" = 5000;
-      };
-      subnet4 = [
-        {
-          id = 1;
-          subnet = "192.168.10.0/24";
-          pools = [ { pool = "192.168.10.10 - 192.168.10.100"; } ];
-          option-data = [
-            {
-              name = "routers";
-              data = "192.168.10.1";
-            }
-            {
-              name = "domain-name-servers";
-              data = "1.1.1.1, 8.8.8.8";
-            }
-          ];
-        }
-      ];
-    };
-  };
-
-  services.radvd = {
-    enable = true;
-    config = ''
-      interface wlp2s0 {
-        AdvSendAdvert on;
-        MinRtrAdvInterval 3;
-        MaxRtrAdvInterval 10;
-        prefix fd00::/64 {
-          AdvOnLink on;
-          AdvAutonomous on;
-        };
-        RDNSS 2606:4700:4700::1111 2001:4860:4860::8888 {};
-      };
-    '';
-  };
-
-  networking.nat = {
-    enable = true;
-    internalInterfaces = [ "wlp2s0" ];
-    externalInterface = "enp4s0";
-  };
-
   boot.kernel.sysctl."net.ipv4.ip_forward" = 1;
   boot.kernel.sysctl."net.ipv6.conf.all.forwarding" = 1;
 
@@ -190,7 +111,6 @@
       51821
       51822
     ];
-    interfaces.wlp2s0.allowedUDPPorts = [ 67 ];
     interfaces.wg1.allowedUDPPorts = [ 53 ];
     extraForwardRules = ''
       iifname "wg1" oifname "wg1" accept
