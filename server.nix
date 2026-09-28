@@ -129,7 +129,7 @@
     virtualHosts."n-lovehigh.maril.blue".extraConfig = "reverse_proxy localhost:8002";
     virtualHosts."nijiiro.maril.blue".extraConfig = "reverse_proxy localhost:8001";
     virtualHosts."files.maril.blue".extraConfig = ''
-      root * /var/www/html
+      root * /var/www
       file_server
       header Access-Control-Allow-Origin "*"
     '';
