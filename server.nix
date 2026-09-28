@@ -128,6 +128,11 @@
     virtualHosts."ll-wiki.maril.blue".extraConfig = "reverse_proxy localhost:8000";
     virtualHosts."n-lovehigh.maril.blue".extraConfig = "reverse_proxy localhost:8002";
     virtualHosts."nijiiro.maril.blue".extraConfig = "reverse_proxy localhost:8001";
+    virtualHosts."files.maril.blue".extraConfig = ''
+      root * /var/www/html
+      file_server
+      header Access-Control-Allow-Origin "*"
+    '';
   };
 
   services.unbound = {
