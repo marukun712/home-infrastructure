@@ -44,11 +44,6 @@
         publicKey = "IiOdLf9WT48gBFrAh8XrDW/cI1Mcm+ATAqNI8maSZ1I=";
         allowedIPs = [ "10.0.0.4/32" ];
       }
-      {
-        # seri (oppo-pad-air)
-        publicKey = "Hlwem/2EUzx4hZSc31a74FjjFVkOCzZVFRT62pRyH1k=";
-        allowedIPs = [ "10.0.0.5/32" ];
-      }
     ];
   };
 
@@ -261,6 +256,7 @@
     pkgs.tcpdump
     pkgs.baresip
     pkgs.at
+    pkgs.unar
   ];
 
   programs.direnv = {
