@@ -203,6 +203,20 @@
       http_port = 3000;
     };
     settings.security.secret_key = "$__file{/etc/grafana/private}";
+    declarativePlugins = with pkgs.grafanaPlugins; [
+      yesoreyeram-infinity-datasource
+    ];
+    provision = {
+      enable = true;
+      datasources.settings.datasources = [
+        {
+          name = "Infinity";
+          type = "yesoreyeram-infinity-datasource";
+          access = "proxy";
+          isDefault = false;
+        }
+      ];
+    };
   };
 
   services.tailscale.enable = true;
@@ -214,11 +228,8 @@
       node = {
         enable = true;
         enabledCollectors = [
-          "ethtool"
           "systemd"
           "logind"
-          "tcpstat"
-          "wifi"
         ];
       };
     };
