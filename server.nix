@@ -210,6 +210,14 @@
       enable = true;
       datasources.settings.datasources = [
         {
+          name = "Prometheus";
+          type = "prometheus";
+          uid = "prometheus";
+          access = "proxy";
+          url = "http://localhost:9090";
+          isDefault = true;
+        }
+        {
           name = "Infinity";
           type = "yesoreyeram-infinity-datasource";
           access = "proxy";
@@ -232,11 +240,39 @@
           "logind"
         ];
       };
+      snmp = {
+        enable = true;
+        listenAddress = "127.0.0.1";
+        configurationPath = "${pkgs.prometheus-snmp-exporter.src}/snmp.yml";
+      };
     };
     scrapeConfigs = [
       {
         job_name = "node";
         static_configs = [ { targets = [ "localhost:9100" ]; } ];
+      }
+      {
+        job_name = "snmp";
+        metrics_path = "/snmp";
+        params = {
+          module = [ "if_mib" ];
+          auth = [ "public_v2" ];
+        };
+        static_configs = [ { targets = [ "192.168.20.1" ]; } ];
+        relabel_configs = [
+          {
+            source_labels = [ "__address__" ];
+            target_label = "__param_target";
+          }
+          {
+            source_labels = [ "__param_target" ];
+            target_label = "instance";
+          }
+          {
+            target_label = "__address__";
+            replacement = "127.0.0.1:9116";
+          }
+        ];
       }
     ];
   };
