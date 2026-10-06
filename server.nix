@@ -243,6 +243,7 @@
       snmp = {
         enable = true;
         listenAddress = "127.0.0.1";
+        enableConfigCheck = false;
         configurationPath = "${pkgs.prometheus-snmp-exporter.src}/snmp.yml";
       };
     };
