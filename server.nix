@@ -97,6 +97,7 @@
     trustedInterfaces = [
       "wg0"
     ];
+    networking.firewall.interfaces."enp4s0".allowedUDPPorts = [ 6343 ];
     allowedTCPPorts = [
       80
       443
@@ -106,7 +107,6 @@
       51821
       51822
     ];
-    interfaces.wg1.allowedUDPPorts = [ 53 ];
     extraForwardRules = ''
       iifname "wg1" oifname "wg1" accept
     '';
@@ -130,41 +130,6 @@
     '';
   };
 
-  services.unbound = {
-    enable = true;
-    settings = {
-      server = {
-        interface = [
-          "0.0.0.0"
-          "::0"
-        ];
-        access-control = [
-          "10.0.10.0/24 allow"
-        ];
-
-        local-zone = [
-          "maimai.mode. static"
-          "xn--l8js9b.xn--7i8h. static"
-        ];
-
-        local-data = [
-          ''"maimai.mode. IN A 10.0.10.2"''
-          ''"xn--l8js9b.xn--7i8h IN A 10.0.10.3"''
-        ];
-      };
-
-      forward-zone = [
-        {
-          name = ".";
-          forward-addr = [
-            "1.1.1.1"
-            "8.8.8.8"
-          ];
-        }
-      ];
-    };
-  };
-
   systemd.services.process-compose = {
     wantedBy = [ "multi-user.target" ];
     serviceConfig = {
@@ -182,53 +147,141 @@
     host = "0.0.0.0";
   };
 
-  services.samba = {
+  services.mattermost = {
     enable = true;
-    settings = {
-      global.workgroup = "WORKGROUP";
-      photos = {
-        path = "/var/lib/photo/samba";
-        "valid users" = "maril";
-        writable = "yes";
+    siteUrl = "https://mattermost.maril.blue";
+  };
+
+  systemd.services.goflow2 = {
+    description = "GoFlow2 sFlow collector";
+    wantedBy = [ "multi-user.target" ];
+    wants = [ "network-online.target" ];
+    after = [ "network-online.target" ];
+    serviceConfig = {
+      ExecStart = ''
+        ${pkgs.goflow2}/bin/goflow2 \
+          -listen sflow://:6343 \
+          -format json \
+          -addr 127.0.0.1:8080
+      '';
+      DynamicUser = true;
+      Restart = "on-failure";
+    };
+  };
+
+  services.loki = {
+    enable = true;
+    configuration = {
+      auth_enabled = false;
+
+      server = {
+        http_listen_port = 3100;
+        grpc_listen_port = 9096;
+        log_level = "info";
+        grpc_server_max_concurrent_streams = 1000;
+      };
+
+      common = {
+        instance_addr = "127.0.0.1";
+        path_prefix = "/var/lib/loki";
+        storage.filesystem = {
+          chunks_directory = "/var/lib/loki/chunks";
+          rules_directory = "/var/lib/loki/rules";
+        };
+        replication_factor = 1;
+        ring = {
+          kvstore = {
+            store = "inmemory";
+          };
+        };
+      };
+
+      query_range = {
+        results_cache = {
+          cache = {
+            embedded_cache = {
+              enabled = true;
+              max_size_mb = 100;
+            };
+          };
+        };
+      };
+
+      limits_config = {
+        metric_aggregation_enabled = true;
+      };
+
+      schema_config = {
+        configs = [
+          {
+            from = "2020-10-24";
+            store = "tsdb";
+            object_store = "filesystem";
+            schema = "v13";
+            index = {
+              prefix = "index_";
+              period = "24h";
+            };
+          }
+        ];
+      };
+
+      pattern_ingester = {
+        enabled = true;
+        metric_aggregation = {
+          loki_address = "localhost:3100";
+        };
+      };
+
+      ruler = {
+        alertmanager_url = "http://localhost:9093";
+      };
+
+      frontend = {
+        encoding = "protobuf";
       };
     };
   };
 
-  services.samba-wsdd.enable = true;
+  services.alloy.enable = true;
 
-  services.grafana = {
-    enable = true;
-    settings.server = {
-      http_addr = "10.0.0.1";
-      http_port = 3000;
-    };
-    settings.security.secret_key = "$__file{/etc/grafana/private}";
-    declarativePlugins = with pkgs.grafanaPlugins; [
-      yesoreyeram-infinity-datasource
-    ];
-    provision = {
-      enable = true;
-      datasources.settings.datasources = [
-        {
-          name = "Prometheus";
-          type = "prometheus";
-          uid = "prometheus";
-          access = "proxy";
-          url = "http://localhost:9090";
-          isDefault = true;
-        }
-        {
-          name = "Infinity";
-          type = "yesoreyeram-infinity-datasource";
-          access = "proxy";
-          isDefault = false;
-        }
-      ];
-    };
-  };
+  environment.etc."alloy/config.alloy".text = ''
+    local.file_match "local_files" {
+      path_targets = [{"__path__" = "/var/log/*.log"}]
+      sync_period  = "5s"
+    }
 
-  services.tailscale.enable = true;
-  services.atd.enable = true;
+    loki.source.file "log_scrape" {
+      targets       = local.file_match.local_files.targets
+      forward_to    = [loki.process.filter_logs.receiver]
+      tail_from_end = true
+    }
+
+    loki.relabel "journal" {
+      forward_to = []
+
+      rule {
+        source_labels = ["__journal__systemd_unit"]
+        target_label  = "unit"
+      }
+    }
+
+    loki.source.journal "read" {
+      forward_to    = [loki.process.filter_logs.receiver]
+      relabel_rules = loki.relabel.journal.rules
+      labels        = {job = "systemd-journal"}
+    }
+
+    loki.process "filter_logs" {
+      forward_to = [loki.write.grafana_loki.receiver]
+    }
+
+    loki.write "grafana_loki" {
+      endpoint {
+        url = "http://localhost:3100/loki/api/v1/push"
+      }
+    }
+  '';
 
   services.prometheus = {
     enable = true;
@@ -278,12 +331,47 @@
     ];
   };
 
-  services.mattermost = {
+  services.grafana = {
     enable = true;
-    siteUrl = "https://mattermost.maril.blue";
+    settings.server = {
+      http_addr = "10.0.0.1";
+      http_port = 3000;
+    };
+    settings.security.secret_key = "$__file{/etc/grafana/private}";
+    declarativePlugins = with pkgs.grafanaPlugins; [
+      yesoreyeram-infinity-datasource
+    ];
+    provision = {
+      enable = true;
+      datasources.settings.datasources = [
+        {
+          name = "Prometheus";
+          type = "prometheus";
+          uid = "prometheus";
+          access = "proxy";
+          url = "http://localhost:9090";
+          isDefault = true;
+        }
+        {
+          name = "Infinity";
+          type = "yesoreyeram-infinity-datasource";
+          access = "proxy";
+          isDefault = false;
+        }
+        {
+          name = "Loki";
+          type = "loki";
+          uid = "loki";
+          access = "proxy";
+          url = "http://localhost:3100";
+        }
+      ];
+    };
   };
 
   services.logind.settings.Login.HandleLidSwitch = "ignore";
+  services.tailscale.enable = true;
+  services.atd.enable = true;
 
   users.users.maril = {
     isNormalUser = true;

@@ -35,14 +35,6 @@ echo "シークレットキー" > /etc/grafana/private
 chmod 600 /etc/grafana/private
 ```
 
-### Samba のパスワード
-
-Samba だけは宣言的に設定できない。1回だけ手動で実行すること。
-
-```bash
-smbpasswd -a maril
-```
-
 ## 設定を変えるとき
 
 ```bash
