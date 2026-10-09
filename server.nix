@@ -20,7 +20,7 @@ let
     nLovehigh = 8002;
 
     sflow = 6343;
-    goflow2Http = 8080;
+    goflow2Http = 9091;
     lokiHttp = 3100;
     lokiGrpc = 9096;
     alertmanager = 9093;
