@@ -4,6 +4,34 @@
   lib,
   ...
 }:
+let
+  ports = {
+    # WireGuard
+    wg0 = 51820;
+    wg1 = 51821; # 友人間 VPN
+    wgRelay = 51822; # VPS Relay
+
+    http = 80;
+    https = 443;
+
+    mattermost = 8065;
+    llWiki = 8000;
+    nijiiro = 8001;
+    nLovehigh = 8002;
+
+    sflow = 6343;
+    goflow2Http = 8080;
+    lokiHttp = 3100;
+    lokiGrpc = 9096;
+    alertmanager = 9093;
+    prometheus = 9090;
+    nodeExporter = 9100;
+    snmpExporter = 9116;
+    grafana = 3000;
+  };
+
+  p = lib.mapAttrs (_: toString) ports;
+in
 {
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
@@ -14,6 +42,9 @@
 
   networking.hostName = "ria";
   networking.useNetworkd = true;
+  networking.nameservers = [
+    "1.1.1.1"
+  ];
   services.resolved.enable = false;
 
   systemd.network.networks."10-enp4s0" = {
@@ -26,7 +57,7 @@
 
   networking.wireguard.interfaces.wg0 = {
     ips = [ "10.0.0.1/24" ];
-    listenPort = 51820;
+    listenPort = ports.wg0;
     privateKeyFile = "/etc/wireguard/private";
     peers = [
       {
@@ -50,7 +81,7 @@
   # 友人間 VPN
   networking.wireguard.interfaces.wg1 = {
     ips = [ "10.0.10.1/24" ];
-    listenPort = 51821;
+    listenPort = ports.wg1;
     privateKeyFile = "/etc/wireguard/maril-network/private";
     peers = [
       {
@@ -79,7 +110,7 @@
   # VPS Relay
   networking.wireguard.interfaces.wg-relay = {
     ips = [ "10.0.20.1/24" ];
-    listenPort = 51822;
+    listenPort = ports.wgRelay;
     privateKeyFile = "/etc/wireguard/relay/private";
     peers = [
       {
@@ -97,15 +128,15 @@
     trustedInterfaces = [
       "wg0"
     ];
-    interfaces."enp4s0".allowedUDPPorts = [ 6343 ];
+    interfaces."enp4s0".allowedUDPPorts = [ ports.sflow ];
     allowedTCPPorts = [
-      80
-      443
+      ports.http
+      ports.https
     ];
     allowedUDPPorts = [
-      51820
-      51821
-      51822
+      ports.wg0
+      ports.wg1
+      ports.wgRelay
     ];
     extraForwardRules = ''
       iifname "wg1" oifname "wg1" accept
@@ -119,10 +150,10 @@
         header_up Host marukun712.github.io
       }
     '';
-    virtualHosts."mattermost.maril.blue".extraConfig = "reverse_proxy localhost:8065";
-    virtualHosts."ll-wiki.maril.blue".extraConfig = "reverse_proxy localhost:8000";
-    virtualHosts."n-lovehigh.maril.blue".extraConfig = "reverse_proxy localhost:8002";
-    virtualHosts."nijiiro.maril.blue".extraConfig = "reverse_proxy localhost:8001";
+    virtualHosts."mattermost.maril.blue".extraConfig = "reverse_proxy localhost:${p.mattermost}";
+    virtualHosts."ll-wiki.maril.blue".extraConfig = "reverse_proxy localhost:${p.llWiki}";
+    virtualHosts."n-lovehigh.maril.blue".extraConfig = "reverse_proxy localhost:${p.nLovehigh}";
+    virtualHosts."nijiiro.maril.blue".extraConfig = "reverse_proxy localhost:${p.nijiiro}";
     virtualHosts."files.maril.blue".extraConfig = ''
       root * /var/www
       file_server
@@ -150,6 +181,7 @@
   services.mattermost = {
     enable = true;
     siteUrl = "https://mattermost.maril.blue";
+    port = ports.mattermost;
   };
 
   systemd.services.goflow2 = {
@@ -160,9 +192,9 @@
     serviceConfig = {
       ExecStart = ''
         ${pkgs.goflow2}/bin/goflow2 \
-          -listen sflow://:6343 \
+          -listen sflow://:${p.sflow} \
           -format json \
-          -addr 127.0.0.1:8080
+          -addr 127.0.0.1:${p.goflow2Http}
       '';
       DynamicUser = true;
       Restart = "on-failure";
@@ -175,8 +207,8 @@
       auth_enabled = false;
 
       server = {
-        http_listen_port = 3100;
-        grpc_listen_port = 9096;
+        http_listen_port = ports.lokiHttp;
+        grpc_listen_port = ports.lokiGrpc;
         log_level = "info";
         grpc_server_max_concurrent_streams = 1000;
       };
@@ -229,12 +261,12 @@
       pattern_ingester = {
         enabled = true;
         metric_aggregation = {
-          loki_address = "localhost:3100";
+          loki_address = "localhost:${p.lokiHttp}";
         };
       };
 
       ruler = {
-        alertmanager_url = "http://localhost:9093";
+        alertmanager_url = "http://localhost:${p.alertmanager}";
       };
 
       frontend = {
@@ -278,16 +310,18 @@
 
     loki.write "grafana_loki" {
       endpoint {
-        url = "http://localhost:3100/loki/api/v1/push"
+        url = "http://localhost:${p.lokiHttp}/loki/api/v1/push"
       }
     }
   '';
 
   services.prometheus = {
     enable = true;
+    port = ports.prometheus;
     exporters = {
       node = {
         enable = true;
+        port = ports.nodeExporter;
         enabledCollectors = [
           "systemd"
           "logind"
@@ -295,6 +329,7 @@
       };
       snmp = {
         enable = true;
+        port = ports.snmpExporter;
         listenAddress = "127.0.0.1";
         enableConfigCheck = false;
         configurationPath = "${pkgs.prometheus-snmp-exporter.src}/snmp.yml";
@@ -303,7 +338,7 @@
     scrapeConfigs = [
       {
         job_name = "node";
-        static_configs = [ { targets = [ "localhost:9100" ]; } ];
+        static_configs = [ { targets = [ "localhost:${p.nodeExporter}" ]; } ];
       }
       {
         job_name = "snmp";
@@ -324,7 +359,7 @@
           }
           {
             target_label = "__address__";
-            replacement = "127.0.0.1:9116";
+            replacement = "127.0.0.1:${p.snmpExporter}";
           }
         ];
       }
@@ -335,7 +370,7 @@
     enable = true;
     settings.server = {
       http_addr = "10.0.0.1";
-      http_port = 3000;
+      http_port = ports.grafana;
     };
     settings.security.secret_key = "$__file{/etc/grafana/private}";
     declarativePlugins = with pkgs.grafanaPlugins; [
@@ -349,7 +384,7 @@
           type = "prometheus";
           uid = "prometheus";
           access = "proxy";
-          url = "http://localhost:9090";
+          url = "http://localhost:${p.prometheus}";
           isDefault = true;
         }
         {
@@ -363,7 +398,7 @@
           type = "loki";
           uid = "loki";
           access = "proxy";
-          url = "http://localhost:3100";
+          url = "http://localhost:${p.lokiHttp}";
         }
       ];
     };
@@ -393,6 +428,10 @@
     pkgs.baresip
     pkgs.at
     pkgs.unar
+    pkgs.trippy
+    pkgs.jq
+    pkgs.dust
+    pkgs.busybox
   ];
 
   programs.direnv = {
