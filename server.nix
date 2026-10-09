@@ -97,7 +97,7 @@
     trustedInterfaces = [
       "wg0"
     ];
-    networking.firewall.interfaces."enp4s0".allowedUDPPorts = [ 6343 ];
+    interfaces."enp4s0".allowedUDPPorts = [ 6343 ];
     allowedTCPPorts = [
       80
       443
