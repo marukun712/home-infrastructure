@@ -357,7 +357,12 @@ in
     scrapeConfigs = [
       {
         job_name = "node";
-        static_configs = [ { targets = [ "localhost:${p.exporters.node}" ]; } ];
+        static_configs = [
+          {
+            targets = [ "localhost:${p.exporters.node}" ];
+            labels.instance = "ria";
+          }
+        ];
       }
       {
         job_name = "snmp";
