@@ -5,34 +5,57 @@
   ...
 }:
 let
+  # ポート割り当てルール
+  #   固定  : 外部 (ルーター・VPN peer・クライアント) が依存するため変更しない
+  #   80x0  : Caddy 配下の Web アプリ
+  #   90x0  : 監視基盤 (可視化・収集・保存)
+  #   91x0  : Prometheus exporter
+  # 各サービスに 10 番のスロットを割り当て、末尾 0 = メイン, +1, +2 ... = 補助ポート
   ports = {
-    # WireGuard
-    wg0 = 51820;
-    wg1 = 51821; # 友人間 VPN
-    wgRelay = 51822; # VPS Relay
+    public = {
+      http = 80;
+      https = 443;
+      sflow = 6343;
+    };
+    wireguard = {
+      wg0 = 51820;
+      wg1 = 51821; # 友人間 VPN
+      relay = 51822; # VPS Relay
+    };
 
-    http = 80;
-    https = 443;
+    web = {
+      mattermost = 8065;
+      llWiki = 8000;
+      nijiiro = 8001;
+      nLovehigh = 8002;
+    };
 
-    mattermost = 8065;
-    llWiki = 8000;
-    nijiiro = 8001;
-    nLovehigh = 8002;
+    monitoring = {
+      grafana = 9010;
+      prometheus = 9020;
+      alertmanager = 9030;
+      lokiHttp = 9040;
+      lokiGrpc = 9041;
+      goflow2Http = 9050;
+    };
 
-    sflow = 6343;
-    goflow2Http = 9091;
-    lokiHttp = 3100;
-    lokiGrpc = 9096;
-    alertmanager = 9093;
-    prometheus = 9090;
-    nodeExporter = 9100;
-    snmpExporter = 9116;
-    grafana = 3000;
+    exporters = {
+      node = 9110;
+      snmp = 9120;
+    };
   };
 
-  p = lib.mapAttrs (_: toString) ports;
+  p = lib.mapAttrsRecursive (_: toString) ports;
+  allPorts = lib.collect lib.isInt ports;
 in
 {
+  assertions = [
+    {
+      assertion = lib.allUnique allPorts;
+      message = "ports に重複があります: ${toString allPorts}";
+    }
+  ];
+
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
@@ -57,7 +80,7 @@ in
 
   networking.wireguard.interfaces.wg0 = {
     ips = [ "10.0.0.1/24" ];
-    listenPort = ports.wg0;
+    listenPort = ports.wireguard.wg0;
     privateKeyFile = "/etc/wireguard/private";
     peers = [
       {
@@ -81,7 +104,7 @@ in
   # 友人間 VPN
   networking.wireguard.interfaces.wg1 = {
     ips = [ "10.0.10.1/24" ];
-    listenPort = ports.wg1;
+    listenPort = ports.wireguard.wg1;
     privateKeyFile = "/etc/wireguard/maril-network/private";
     peers = [
       {
@@ -110,7 +133,7 @@ in
   # VPS Relay
   networking.wireguard.interfaces.wg-relay = {
     ips = [ "10.0.20.1/24" ];
-    listenPort = ports.wgRelay;
+    listenPort = ports.wireguard.relay;
     privateKeyFile = "/etc/wireguard/relay/private";
     peers = [
       {
@@ -128,16 +151,12 @@ in
     trustedInterfaces = [
       "wg0"
     ];
-    interfaces."enp4s0".allowedUDPPorts = [ ports.sflow ];
+    interfaces."enp4s0".allowedUDPPorts = [ ports.public.sflow ];
     allowedTCPPorts = [
-      ports.http
-      ports.https
+      ports.public.http
+      ports.public.https
     ];
-    allowedUDPPorts = [
-      ports.wg0
-      ports.wg1
-      ports.wgRelay
-    ];
+    allowedUDPPorts = lib.attrValues ports.wireguard;
     extraForwardRules = ''
       iifname "wg1" oifname "wg1" accept
     '';
@@ -150,10 +169,10 @@ in
         header_up Host marukun712.github.io
       }
     '';
-    virtualHosts."mattermost.maril.blue".extraConfig = "reverse_proxy localhost:${p.mattermost}";
-    virtualHosts."ll-wiki.maril.blue".extraConfig = "reverse_proxy localhost:${p.llWiki}";
-    virtualHosts."n-lovehigh.maril.blue".extraConfig = "reverse_proxy localhost:${p.nLovehigh}";
-    virtualHosts."nijiiro.maril.blue".extraConfig = "reverse_proxy localhost:${p.nijiiro}";
+    virtualHosts."mattermost.maril.blue".extraConfig = "reverse_proxy localhost:${p.web.mattermost}";
+    virtualHosts."ll-wiki.maril.blue".extraConfig = "reverse_proxy localhost:${p.web.llWiki}";
+    virtualHosts."n-lovehigh.maril.blue".extraConfig = "reverse_proxy localhost:${p.web.nLovehigh}";
+    virtualHosts."nijiiro.maril.blue".extraConfig = "reverse_proxy localhost:${p.web.nijiiro}";
     virtualHosts."files.maril.blue".extraConfig = ''
       root * /var/www
       file_server
@@ -181,7 +200,7 @@ in
   services.mattermost = {
     enable = true;
     siteUrl = "https://mattermost.maril.blue";
-    port = ports.mattermost;
+    port = ports.web.mattermost;
   };
 
   systemd.services.goflow2 = {
@@ -192,9 +211,9 @@ in
     serviceConfig = {
       ExecStart = ''
         ${pkgs.goflow2}/bin/goflow2 \
-          -listen sflow://:${p.sflow} \
+          -listen sflow://:${p.public.sflow} \
           -format json \
-          -addr 127.0.0.1:${p.goflow2Http}
+          -addr 127.0.0.1:${p.monitoring.goflow2Http}
       '';
       DynamicUser = true;
       Restart = "on-failure";
@@ -207,8 +226,8 @@ in
       auth_enabled = false;
 
       server = {
-        http_listen_port = ports.lokiHttp;
-        grpc_listen_port = ports.lokiGrpc;
+        http_listen_port = ports.monitoring.lokiHttp;
+        grpc_listen_port = ports.monitoring.lokiGrpc;
         log_level = "info";
         grpc_server_max_concurrent_streams = 1000;
       };
@@ -261,12 +280,12 @@ in
       pattern_ingester = {
         enabled = true;
         metric_aggregation = {
-          loki_address = "localhost:${p.lokiHttp}";
+          loki_address = "localhost:${p.monitoring.lokiHttp}";
         };
       };
 
       ruler = {
-        alertmanager_url = "http://localhost:${p.alertmanager}";
+        alertmanager_url = "http://localhost:${p.monitoring.alertmanager}";
       };
 
       frontend = {
@@ -310,18 +329,18 @@ in
 
     loki.write "grafana_loki" {
       endpoint {
-        url = "http://localhost:${p.lokiHttp}/loki/api/v1/push"
+        url = "http://localhost:${p.monitoring.lokiHttp}/loki/api/v1/push"
       }
     }
   '';
 
   services.prometheus = {
     enable = true;
-    port = ports.prometheus;
+    port = ports.monitoring.prometheus;
     exporters = {
       node = {
         enable = true;
-        port = ports.nodeExporter;
+        port = ports.exporters.node;
         enabledCollectors = [
           "systemd"
           "logind"
@@ -329,7 +348,7 @@ in
       };
       snmp = {
         enable = true;
-        port = ports.snmpExporter;
+        port = ports.exporters.snmp;
         listenAddress = "127.0.0.1";
         enableConfigCheck = false;
         configurationPath = "${pkgs.prometheus-snmp-exporter.src}/snmp.yml";
@@ -338,7 +357,7 @@ in
     scrapeConfigs = [
       {
         job_name = "node";
-        static_configs = [ { targets = [ "localhost:${p.nodeExporter}" ]; } ];
+        static_configs = [ { targets = [ "localhost:${p.exporters.node}" ]; } ];
       }
       {
         job_name = "snmp";
@@ -359,7 +378,7 @@ in
           }
           {
             target_label = "__address__";
-            replacement = "127.0.0.1:${p.snmpExporter}";
+            replacement = "127.0.0.1:${p.exporters.snmp}";
           }
         ];
       }
@@ -370,7 +389,7 @@ in
     enable = true;
     settings.server = {
       http_addr = "10.0.0.1";
-      http_port = ports.grafana;
+      http_port = ports.monitoring.grafana;
     };
     settings.security.secret_key = "$__file{/etc/grafana/private}";
     declarativePlugins = with pkgs.grafanaPlugins; [
@@ -384,7 +403,7 @@ in
           type = "prometheus";
           uid = "prometheus";
           access = "proxy";
-          url = "http://localhost:${p.prometheus}";
+          url = "http://localhost:${p.monitoring.prometheus}";
           isDefault = true;
         }
         {
@@ -398,7 +417,7 @@ in
           type = "loki";
           uid = "loki";
           access = "proxy";
-          url = "http://localhost:${p.lokiHttp}";
+          url = "http://localhost:${p.monitoring.lokiHttp}";
         }
       ];
     };
