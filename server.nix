@@ -354,6 +354,7 @@ in
         configurationPath = "${pkgs.prometheus-snmp-exporter.src}/snmp.yml";
       };
     };
+    extraFlags = [ "--web.enable-admin-api" ];
     scrapeConfigs = [
       {
         job_name = "node";
