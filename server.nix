@@ -374,7 +374,10 @@ in
         job_name = "snmp";
         metrics_path = "/snmp";
         params = {
-          module = [ "if_mib" ];
+          module = [
+            "if_mib"
+            "nec_ix"
+          ];
           auth = [ "public_v2" ];
         };
         static_configs = [ { targets = [ "192.168.20.1" ]; } ];
