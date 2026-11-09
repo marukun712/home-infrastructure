@@ -29,6 +29,7 @@ let
       llWiki = 8000;
       nijiiro = 8001;
       nLovehigh = 8002;
+      matrix = 8010;
     };
 
     monitoring = {
@@ -166,8 +167,13 @@ in
   services.caddy = {
     enable = true;
     virtualHosts."maril.blue".extraConfig = ''
-      reverse_proxy https://marukun712.github.io {
-        header_up Host marukun712.github.io
+      handle /.well-known/matrix/* {
+        reverse_proxy localhost:${p.web.matrix}
+      }
+      handle {
+        reverse_proxy https://marukun712.github.io {
+          header_up Host marukun712.github.io
+        }
       }
     '';
     virtualHosts."mattermost.maril.blue".extraConfig = "reverse_proxy localhost:${p.web.mattermost}";
@@ -179,6 +185,7 @@ in
       file_server
       header Access-Control-Allow-Origin "*"
     '';
+    virtualHosts."matrix.maril.blue".extraConfig = "reverse_proxy localhost:${p.web.matrix}";
   };
 
   systemd.services.process-compose = {
@@ -205,6 +212,21 @@ in
     enable = true;
     siteUrl = "https://mattermost.maril.blue";
     port = ports.web.mattermost;
+  };
+
+  services.matrix-continuwuity = {
+    enable = true;
+    settings.global = {
+      server_name = "maril.blue";
+      address = [ "127.0.0.1" ];
+      port = [ ports.web.matrix ];
+      allow_registration = false;
+      trusted_servers = [ "matrix.org" ];
+      well_known = {
+        client = "https://matrix.maril.blue";
+        server = "matrix.maril.blue:443";
+      };
+    };
   };
 
   systemd.services.goflow2 = {
