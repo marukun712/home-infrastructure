@@ -216,6 +216,7 @@ in
 
   services.matrix-continuwuity = {
     enable = true;
+    package = pkgs.matrix-continuwuity_latest;
     settings.global = {
       server_name = "maril.blue";
       address = [ "127.0.0.1" ];
