@@ -1,6 +1,5 @@
 .direnv
-out-infra
-out-apps
+out/
 controlplane.yaml
 worker.yaml
 secrets.yaml

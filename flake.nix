@@ -25,7 +25,9 @@
       {
         packages = {
           infra = render ./k8s/infra.nix;
-          apps = render ./k8s/apps.nix;
+          grafana = render ./k8s/grafana.nix;
+          prometheus = render ./k8s/prometheus.nix;
+          immich = render ./k8s/immich.nix;
         };
 
         devShells.default = pkgs.mkShell {

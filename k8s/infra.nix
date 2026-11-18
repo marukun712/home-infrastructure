@@ -22,14 +22,6 @@ let
     version = "0.16.2";
     sha256 = "sha256-ZeF3xM82BKqd0JAtjgiINyWPf6LBXCgwQk3TPedGZrg=";
   };
-  metallbValues.frrk8s.enabled = false;
-
-  withDefaultProtocol =
-    obj:
-    if obj.kind == "Service" && obj ? spec.ports then
-      lib.recursiveUpdate obj { spec.ports = map (p: { protocol = "TCP"; } // p) obj.spec.ports; }
-    else
-      obj;
 in
 {
   imports = with kubenix.modules; [
@@ -40,6 +32,21 @@ in
   kubenix.project = "my-cluster";
   kubernetes.version = "1.37";
 
+  kubernetes.customTypes = [
+    {
+      group = "metallb.io";
+      version = "v1beta1";
+      kind = "IPAddressPool";
+      attrName = "ipaddresspools";
+    }
+    {
+      group = "metallb.io";
+      version = "v1beta1";
+      kind = "L2Advertisement";
+      attrName = "l2advertisements";
+    }
+  ];
+
   kubernetes.resources.namespaces = {
     local-path-storage.metadata.labels = {
       "pod-security.kubernetes.io/enforce" = "privileged";
@@ -49,7 +56,14 @@ in
       "pod-security.kubernetes.io/audit" = "privileged";
       "pod-security.kubernetes.io/warn" = "privileged";
     };
+    monitoring.metadata.labels = {
+      "pod-security.kubernetes.io/enforce" = "privileged";
+      "pod-security.kubernetes.io/audit" = "privileged";
+      "pod-security.kubernetes.io/warn" = "privileged";
+    };
   };
+
+  kubernetes.resources.namespaces.immich = { };
 
   kubernetes.helm.releases.local-path-provisioner = {
     chart = lppChart;
@@ -65,22 +79,22 @@ in
     };
   };
 
-  kubernetes.helm.releases.metallb = {
-    chart = metallbChart;
-    namespace = "metallb-system";
-    values = metallbValues;
-    objects = lib.mkForce (
-      map withDefaultProtocol (
-        lib.importJSON (
-          kubenix.lib.helm.chart2json {
-            chart = metallbChart;
-            name = "metallb";
-            namespace = "metallb-system";
-            values = metallbValues;
-            kubeVersion = config.kubernetes.version;
-          }
-        )
-      )
-    );
+  kubernetes.resources.ipaddresspools.default-pool = {
+    metadata.namespace = "metallb-system";
+    spec.addresses = [ "192.168.20.240-192.168.20.250" ];
   };
+  kubernetes.resources.l2advertisements.default = {
+    metadata.namespace = "metallb-system";
+    spec.ipAddressPools = [ "default-pool" ];
+  };
+
+  kubernetes.objects = lib.importJSON (
+    kubenix.lib.helm.chart2json {
+      chart = metallbChart;
+      name = "metallb";
+      namespace = "metallb-system";
+      kubeVersion = config.kubernetes.version;
+      values.frrk8s.enabled = false;
+    }
+  );
 }

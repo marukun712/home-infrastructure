@@ -32,12 +32,19 @@ kubectl get nodes
 
 ## Kubernetes リソースの適用
 
+ビルド
 ```bash
-nix build .#infra -o out-infra
-kubectl apply --server-side -f out-infra
+./build.sh
+```
 
-nix build .#apps -o out-apps
-kubectl apply -f out-apps
+シークレットを作っていない場合は作る
+```bash
+kubectl -n monitoring create secret generic grafana-admin --from-literal=admin-user=admin --from-literal=admin-password=
+kubectl -n immich create secret generic immich-db --from-literal=password=
+```
+
+```bash
+kubectl apply -f out/<service>
 ```
 
 ## Talos 設定の変更 (2回目以降)
