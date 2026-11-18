@@ -88,13 +88,9 @@ in
     spec.ipAddressPools = [ "default-pool" ];
   };
 
-  kubernetes.objects = lib.importJSON (
-    kubenix.lib.helm.chart2json {
-      chart = metallbChart;
-      name = "metallb";
-      namespace = "metallb-system";
-      kubeVersion = config.kubernetes.version;
-      values.frrk8s.enabled = false;
-    }
-  );
+  kubernetes.helm.releases.metallb = {
+    chart = metallbChart;
+    namespace = "metallb-system";
+    values.frrk8s.enabled = false;
+  };
 }

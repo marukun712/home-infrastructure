@@ -5,7 +5,7 @@
 ## 準備
 
 ```bash
-export NODE_IP=192.168.1.10
+export NODE_IP=hoge
 ```
 
 ## 初回構築
@@ -33,11 +33,13 @@ kubectl get nodes
 ## Kubernetes リソースの適用
 
 ビルド
+
 ```bash
 ./build.sh
 ```
 
 シークレットを作っていない場合は作る
+
 ```bash
 kubectl -n monitoring create secret generic grafana-admin --from-literal=admin-user=admin --from-literal=admin-password=
 kubectl -n immich create secret generic immich-db --from-literal=password=
@@ -58,11 +60,29 @@ rm controlplane.yaml
 ## 各種configの取得
 
 talosconfig:
+
 ```bash
 talosctl gen config my-cluster https://$NODE_IP:6443 --with-secrets secrets.yaml --output-types talosconfig -o talosconfig --force
 ```
 
 kubeconfig:
+
 ```bash
 talosctl kubeconfig ./kubeconfig
+```
+
+## NetBirdのデプロイ
+
+netbird/inventory.iniでNetBirdをインストールするサーバーのIPを指定
+
+```ini
+[netbird]
+160.236.116.20 ansible_user=mni-user
+```
+
+インストールする
+
+```bash
+cd netbird
+sh update.sh
 ```

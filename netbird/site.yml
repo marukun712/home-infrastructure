@@ -1,0 +1,53 @@
+- name: Install NetBird
+  hosts: netbird
+  become: true
+  vars:
+    script_url: https://github.com/netbirdio/netbird/releases/latest/download/getting-started.sh
+
+  tasks:
+    - name: Install prerequisites
+      ansible.builtin.apt:
+        name: [curl, jq, ca-certificates]
+        state: present
+        update_cache: true
+
+    - name: Install Docker
+      ansible.builtin.shell: curl -fsSL https://get.docker.com | sh
+      args:
+        creates: /usr/bin/docker
+
+    - name: Ensure Docker is running
+      ansible.builtin.service:
+        name: docker
+        state: started
+        enabled: true
+
+    - name: Create NetBird directory
+      ansible.builtin.file:
+        path: "{{ netbird_dir }}"
+        state: directory
+        mode: "0750"
+
+    - name: Download getting-started.sh
+      ansible.builtin.get_url:
+        url: "{{ script_url }}"
+        dest: "{{ netbird_dir }}/getting-started.sh"
+        mode: "0755"
+
+    - name: Run NetBird installer
+      ansible.builtin.command: ./getting-started.sh
+      args:
+        chdir: "{{ netbird_dir }}"
+        creates: "{{ netbird_dir }}/config.yaml"
+      environment:
+        NETBIRD_DOMAIN: "{{ netbird_domain }}"
+        NETBIRD_LETSENCRYPT_EMAIL: "{{ netbird_letsencrypt_email }}"
+        NETBIRD_REVERSE_PROXY_TYPE: "0"
+        NETBIRD_NON_INTERACTIVE: "true"
+
+    - name: Make sure the stack is up
+      ansible.builtin.command: docker compose up -d
+      args:
+        chdir: "{{ netbird_dir }}"
+      register: up
+      changed_when: "'Started' in up.stderr or 'Created' in up.stderr"

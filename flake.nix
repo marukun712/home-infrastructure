@@ -37,6 +37,8 @@
             kubernetes-helm
             age
             sops
+            biome
+            ansible
           ];
           shellHook = ''
             export TALOSCONFIG="$PWD/talosconfig"

@@ -18,18 +18,14 @@ in
   kubenix.project = "my-cluster";
   kubernetes.version = "1.37";
 
-  kubernetes.objects = lib.importJSON (
-    kubenix.lib.helm.chart2json {
-      chart = prometheusChart;
-      name = "prometheus";
-      namespace = "monitoring";
-      kubeVersion = config.kubernetes.version;
-      values = {
-        server = {
-          service.type = "LoadBalancer";
-          persistentVolume.size = "20Gi";
-        };
+  kubernetes.helm.releases.prometheus = {
+    chart = prometheusChart;
+    namespace = "monitoring";
+    values = {
+      server = {
+        service.type = "LoadBalancer";
+        persistentVolume.size = "20Gi";
       };
-    }
-  );
+    };
+  };
 }
