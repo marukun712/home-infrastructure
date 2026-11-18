@@ -13,19 +13,28 @@ let
   };
 in
 {
-  imports = [ kubenix.modules.k8s ];
+  imports = with kubenix.modules; [
+    k8s
+    helm
+  ];
 
   kubenix.project = "my-cluster";
   kubernetes.version = "1.37";
+
+  # https://github.com/hall/kubenix/issues/97
+  kubernetes.resources.deployments.prometheus-server.spec.template.spec.containers.prometheus-server.ports =
+    lib.mkForce [
+      {
+        containerPort = 9090;
+        protocol = "TCP";
+      }
+    ];
 
   kubernetes.helm.releases.prometheus = {
     chart = prometheusChart;
     namespace = "monitoring";
     values = {
-      server = {
-        service.type = "LoadBalancer";
-        persistentVolume.size = "20Gi";
-      };
+      server.persistentVolume.size = "20Gi";
     };
   };
 }

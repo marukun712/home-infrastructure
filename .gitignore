@@ -5,3 +5,8 @@ worker.yaml
 secrets.yaml
 talosconfig
 kubeconfig
+netbird-pat
+tf/config.tf.json
+tf/.terraform
+tf/terraform.tfstate
+tf/terraform.tfstate.backup

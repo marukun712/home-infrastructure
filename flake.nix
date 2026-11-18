@@ -6,6 +6,10 @@
       url = "github:hall/kubenix";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    terranix = {
+      url = "github:terranix/terranix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
@@ -14,6 +18,7 @@
       nixpkgs,
       flake-utils,
       kubenix,
+      terranix,
       ...
     }:
     flake-utils.lib.eachDefaultSystem (
@@ -28,6 +33,11 @@
           grafana = render ./k8s/grafana.nix;
           prometheus = render ./k8s/prometheus.nix;
           immich = render ./k8s/immich.nix;
+          netbird = render ./k8s/netbird.nix;
+          netbird-tf = terranix.lib.terranixConfiguration {
+            inherit pkgs;
+            modules = [ ./tf/netbird.nix ];
+          };
         };
 
         devShells.default = pkgs.mkShell {
@@ -39,6 +49,7 @@
             sops
             biome
             ansible
+            opentofu
           ];
           shellHook = ''
             export TALOSCONFIG="$PWD/talosconfig"

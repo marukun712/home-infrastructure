@@ -21,7 +21,6 @@ in
     namespace = "monitoring";
     noHooks = true;
     values = {
-      service.type = "LoadBalancer";
       persistence = {
         enabled = true;
         size = "10Gi";

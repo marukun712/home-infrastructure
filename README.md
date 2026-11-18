@@ -43,6 +43,7 @@ kubectl get nodes
 ```bash
 kubectl -n monitoring create secret generic grafana-admin --from-literal=admin-user=admin --from-literal=admin-password=
 kubectl -n immich create secret generic immich-db --from-literal=password=
+kubectl -n netbird create secret generic netbird-mgmt-api-key --from-literal=NB_API_KEY=$(cat netbird-pat)
 ```
 
 ```bash
@@ -85,4 +86,20 @@ netbird/inventory.iniでNetBirdをインストールするサーバーのIPを�
 ```bash
 cd netbird
 sh update.sh
+```
+
+## NetBird Operator のデプロイ
+
+PATをnetbird-patに保存して実行
+
+```bash
+sh tf.sh plan
+sh tf.sh apply
+```
+
+### アクセス
+
+```bash
+kubectl config set-cluster my-cluster --server=https://kubernetes.default.cluster.maril.blue
+kubectl config set-cluster my-cluster --tls-server-name=kubernetes.default.svc
 ```

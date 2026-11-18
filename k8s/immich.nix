@@ -120,7 +120,6 @@ in
       immich.persistence.library.existingClaim = "immich-library";
       valkey.enabled = true;
       server = {
-        service.main.type = "LoadBalancer";
         controllers.main.containers.main.env = {
           DB_HOSTNAME = "immich-postgres";
           DB_USERNAME = "postgres";
