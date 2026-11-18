@@ -1,42 +1,61 @@
 # home-infrastructure
 
-自宅サーバーの NixOS 設定。勝手に変えないこと。わからないことがあれば聞いて。
+自宅クラウド用kubenix config
 
-**管理者: 麻布麻衣**
-
-## インストール
-
-NixOS の minimal ISO で起動して実行する。
+## 準備
 
 ```bash
-git clone https://github.com/marukun712/home-infrastructure
-cd home-infrastructure
-bash install.sh
+export NODE_IP=192.168.1.10
 ```
 
-disko でパーティションを切って、そのまま nixos-install を流す。
-
-## 初回セットアップ
-
-### WireGuard 鍵の生成
-
-サーバーに入って実行する。
+## 初回構築
 
 ```bash
-wg genkey | tee /etc/wireguard/private | wg pubkey
+# maintenance modeで
+talosctl get disks --insecure --nodes $NODE_IP
+
+# secretの生成
+talosctl gen secrets -o secrets.yaml
+
+talosctl gen config my-cluster https://$NODE_IP:6443 --with-secrets secrets.yaml --install-disk /dev/sda --config-patch patch.yaml
+
+talosctl apply-config --insecure --nodes $NODE_IP --file controlplane.yaml
+rm controlplane.yaml worker.yaml
+
+talosctl config endpoints $NODE_IP
+talosctl config nodes $NODE_IP
+talosctl bootstrap # 初回のみ
+
+talosctl kubeconfig ./kubeconfig
+kubectl get nodes
 ```
-この公開鍵は、クライアント側で登録する。
 
-### Grafana のシークレットキー
+## Kubernetes リソースの適用
 
 ```bash
-mkdir -p /etc/grafana
-echo "シークレットキー" > /etc/grafana/private
-chmod 600 /etc/grafana/private
+nix build .#infra -o out-infra
+kubectl apply --server-side -f out-infra
+
+nix build .#apps -o out-apps
+kubectl apply -f out-apps
 ```
 
-## 設定を変えるとき
+## Talos 設定の変更 (2回目以降)
 
 ```bash
-nixos-rebuild switch --flake github:marukun712/home-infrastructure#server
+talosctl gen config my-cluster https://$NODE_IP:6443 --with-secrets secrets.yaml --install-disk /dev/sda --config-patch patch.yaml --output-types controlplane -o controlplane.yaml --force
+talosctl apply-config --nodes $NODE_IP --file controlplane.yaml
+rm controlplane.yaml
+```
+
+## 各種configの取得
+
+talosconfig:
+```bash
+talosctl gen config my-cluster https://$NODE_IP:6443 --with-secrets secrets.yaml --output-types talosconfig -o talosconfig --force
+```
+
+kubeconfig:
+```bash
+talosctl kubeconfig ./kubeconfig
 ```

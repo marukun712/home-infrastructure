@@ -1,0 +1,8 @@
+.direnv
+out-infra
+out-apps
+controlplane.yaml
+worker.yaml
+secrets.yaml
+talosconfig
+kubeconfig
