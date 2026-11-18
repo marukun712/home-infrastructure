@@ -32,8 +32,8 @@
   };
 
   resource.netbird_dns_zone.cluster = {
-    name = "cluster";
-    domain = "cluster.maril.blue";
+    name = "syakechan";
+    domain = "syakechan.internal";
     enabled = true;
     enable_search_domain = true;
     distribution_groups = [ "\${netbird_group.kubernetes_clients.id}" ];

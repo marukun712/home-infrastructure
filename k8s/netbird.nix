@@ -66,7 +66,7 @@ in
   kubernetes.resources.networkrouters.cluster = {
     metadata.namespace = "netbird";
     spec = {
-      dnsZoneRef.name = "cluster.maril.blue";
+      dnsZoneRef.name = "syakechan.internal";
       workloadOverride.replicas = 1;
     };
   };

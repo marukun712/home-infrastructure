@@ -97,9 +97,21 @@ sh tf.sh plan
 sh tf.sh apply
 ```
 
-### アクセス
+## アクセスできるサービス
+
+| サービス         | URL                                                    | Service           | Namespace  |
+| ---------------- | ------------------------------------------------------ | ----------------- | ---------- |
+| Grafana          | http://grafana.monitoring.syakechan.internal           | grafana           | monitoring |
+| Prometheus       | http://prometheus-server.monitoring.syakechan.internal | prometheus-server | monitoring |
+| Immich           | http://immich-server.immich.syakechan.internal:2283    | immich-server     | immich     |
+| Kubernetes API   | https://kubernetes.default.syakechan.internal          | kubernetes        | default    |
+| NetBird 管理画面 | https://netbird.maril.blue                             | -                 | -          |
+
+公開するサービスを増やすときはk8s/netbird.nixにNetworkResourceを追加する
+
+### kubectlの設定
 
 ```bash
-kubectl config set-cluster my-cluster --server=https://kubernetes.default.cluster.maril.blue
+kubectl config set-cluster my-cluster --server=https://kubernetes.default.syakechan.internal
 kubectl config set-cluster my-cluster --tls-server-name=kubernetes.default.svc
 ```
