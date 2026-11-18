@@ -31,8 +31,10 @@
     ];
   };
 
+  # operatorはdnsZoneRef.nameをゾーンのnameと比較するため、nameはdomainと同じにする
+  # https://github.com/netbirdio/kubernetes-operator/blob/v0.9.0/internal/netbirdutil/zone.go
   resource.netbird_dns_zone.cluster = {
-    name = "syakechan";
+    name = "syakechan.internal";
     domain = "syakechan.internal";
     enabled = true;
     enable_search_domain = true;
