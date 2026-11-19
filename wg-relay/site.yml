@@ -1,0 +1,66 @@
+- name: Install WireGuard relay
+  hosts: wg_relay
+  become: true
+
+  tasks:
+    - name: Install WireGuard
+      ansible.builtin.apt:
+        name: [wireguard, iptables]
+        state: present
+        update_cache: true
+
+    - name: Enable IPv4 forwarding
+      ansible.builtin.copy:
+        content: "net.ipv4.ip_forward=1\n"
+        dest: /etc/sysctl.d/99-wg-relay.conf
+        mode: "0644"
+      notify: Apply sysctl
+
+    - name: Create WireGuard directory
+      ansible.builtin.file:
+        path: /etc/wireguard
+        state: directory
+        mode: "0700"
+
+    - name: Generate server private key
+      ansible.builtin.shell: umask 077 && wg genkey > /etc/wireguard/privatekey
+      args:
+        creates: /etc/wireguard/privatekey
+
+    - name: Read server private key
+      ansible.builtin.slurp:
+        src: /etc/wireguard/privatekey
+      register: wg_private_key
+
+    - name: Write wg0.conf
+      ansible.builtin.template:
+        src: templates/wg0.conf.j2
+        dest: /etc/wireguard/wg0.conf
+        mode: "0600"
+      notify: Restart WireGuard
+
+    - name: Enable wg-quick
+      ansible.builtin.service:
+        name: wg-quick@wg0
+        state: started
+        enabled: true
+
+    - name: Get server public key
+      ansible.builtin.command: wg pubkey
+      args:
+        stdin: "{{ wg_private_key.content | b64decode }}"
+      register: wg_public_key
+      changed_when: false
+
+    - name: Show server public key
+      ansible.builtin.debug:
+        msg: "server public key: {{ wg_public_key.stdout }}"
+
+  handlers:
+    - name: Apply sysctl
+      ansible.builtin.command: sysctl --system
+
+    - name: Restart WireGuard
+      ansible.builtin.service:
+        name: wg-quick@wg0
+        state: restarted

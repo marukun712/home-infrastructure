@@ -43,12 +43,6 @@ in
     }
   ];
 
-  kubernetes.resources.namespaces.netbird.metadata.labels = {
-    "pod-security.kubernetes.io/enforce" = "privileged";
-    "pod-security.kubernetes.io/audit" = "privileged";
-    "pod-security.kubernetes.io/warn" = "privileged";
-  };
-
   kubernetes.helm.releases.netbird-operator = {
     chart = operatorChart;
     namespace = "netbird";

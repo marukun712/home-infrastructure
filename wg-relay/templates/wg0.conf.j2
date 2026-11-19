@@ -1,0 +1,23 @@
+[Interface]
+Address = {{ wg_server_address }}
+ListenPort = {{ wg_port }}
+MTU = {{ wg_mtu }}
+PrivateKey = {{ wg_private_key.content | b64decode | trim }}
+
+PostUp = iptables -t nat -A PREROUTING -i {{ ansible_default_ipv4.interface }} -p tcp --dport 22 -j RETURN
+PostUp = iptables -t nat -A PREROUTING -i {{ ansible_default_ipv4.interface }} -p udp --dport {{ wg_port }} -j RETURN
+PostUp = iptables -t nat -A PREROUTING -i {{ ansible_default_ipv4.interface }} -j DNAT --to-destination {{ wg_cluster_address }}
+PostUp = iptables -t nat -A POSTROUTING -o wg0 -j MASQUERADE
+PostUp = iptables -A FORWARD -i {{ ansible_default_ipv4.interface }} -o wg0 -j ACCEPT
+PostUp = iptables -A FORWARD -i wg0 -o {{ ansible_default_ipv4.interface }} -j ACCEPT
+
+PostDown = iptables -t nat -D PREROUTING -i {{ ansible_default_ipv4.interface }} -p tcp --dport 22 -j RETURN
+PostDown = iptables -t nat -D PREROUTING -i {{ ansible_default_ipv4.interface }} -p udp --dport {{ wg_port }} -j RETURN
+PostDown = iptables -t nat -D PREROUTING -i {{ ansible_default_ipv4.interface }} -j DNAT --to-destination {{ wg_cluster_address }}
+PostDown = iptables -t nat -D POSTROUTING -o wg0 -j MASQUERADE
+PostDown = iptables -D FORWARD -i {{ ansible_default_ipv4.interface }} -o wg0 -j ACCEPT
+PostDown = iptables -D FORWARD -i wg0 -o {{ ansible_default_ipv4.interface }} -j ACCEPT
+
+[Peer]
+PublicKey = {{ wg_cluster_public_key }}
+AllowedIPs = {{ wg_cluster_address }}/32

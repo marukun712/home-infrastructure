@@ -101,25 +101,8 @@
     ];
   };
 
-  # 1ポリシーにルールは1つまでなので、sshと全プロトコルでポリシーを分ける
-  resource.netbird_policy.admin_ssh = {
-    name = "admin-ssh";
-    enabled = true;
-    rule = [
-      {
-        name = "admin-ssh";
-        action = "accept";
-        enabled = true;
-        bidirectional = true;
-        protocol = "netbird-ssh";
-        sources = [ "\${netbird_group.admin.id}" ];
-        destinations = [ "\${netbird_group.admin.id}" ];
-      }
-    ];
-  };
-
   resource.netbird_policy.admin_all = {
-    name = "admin-all";
+    name = "admin";
     enabled = true;
     rule = [
       {

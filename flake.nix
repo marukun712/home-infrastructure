@@ -34,6 +34,8 @@
           prometheus = render ./k8s/prometheus.nix;
           immich = render ./k8s/immich.nix;
           netbird = render ./k8s/netbird.nix;
+          caddy = render ./k8s/caddy.nix;
+          wg-relay = render ./k8s/wg-relay.nix;
           netbird-tf = terranix.lib.terranixConfiguration {
             inherit pkgs;
             modules = [ ./tf/netbird.nix ];

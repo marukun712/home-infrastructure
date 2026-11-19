@@ -99,6 +99,58 @@ sh tf.sh plan
 sh tf.sh apply
 ```
 
+## Relay VMのデプロイ
+
+公開Podのインターネット入口
+
+wg-relay/inventory.iniにVMのipを入れる
+
+```ini
+[wg_relay]
+160.236.116.21 ansible_user=mni-user
+```
+
+クラスタ用の鍵生成
+
+```bash
+wg genkey | tee wg-privatekey | wg pubkey
+```
+pkをwg-relay/group_vars/all.ymlのwg_cluster_public_keyに書く
+
+```bash
+cd wg-relay
+sh update.sh
+```
+最後に表示されるserver_pkとVMのIPをk8s/wg-relay.nixのrelayPublicKey, relayEndpointに書く
+
+秘密鍵をSecretに入れる
+
+```bash
+./build.sh
+kubectl apply -f out/infra.yaml
+kubectl -n relay create secret generic wg-relay --from-file=privatekey=wg-privatekey
+```
+
+適用
+
+```bash
+kubectl apply -f out/caddy.yaml
+kubectl apply -f out/wg-relay.yaml
+```
+
+### 公開するサービスを増やす
+
+```nix
+publish = [
+  { name = "caddy"; port = 80; protocol = "tcp"; target = "caddy.web.svc.cluster.local:80"; }
+];
+```
+
+```bash
+./build.sh
+kubectl apply -f out/wg-relay.yaml
+```
+
 ## アクセスできるサービス
 
 | サービス         | URL                                                    | Service           | Namespace  |
@@ -112,6 +164,8 @@ sh tf.sh apply
 公開するサービスを増やすときはk8s/netbird.nixにNetworkResourceを追加する
 
 ### kubectlの設定
+
+kubeconfigの宛先をLAN IPではなくNetBird IPにする
 
 ```bash
 kubectl config set-cluster my-cluster --server=https://kubernetes.default.syakechan.internal

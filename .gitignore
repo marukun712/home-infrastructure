@@ -6,6 +6,7 @@ secrets.yaml
 talosconfig
 kubeconfig
 netbird-pat
+wg-privatekey
 tf/config.tf.json
 tf/.terraform
 tf/terraform.tfstate

@@ -41,11 +41,20 @@ in
       "pod-security.kubernetes.io/audit" = "privileged";
       "pod-security.kubernetes.io/warn" = "privileged";
     };
+    netbird.metadata.labels = {
+      "pod-security.kubernetes.io/enforce" = "privileged";
+      "pod-security.kubernetes.io/audit" = "privileged";
+      "pod-security.kubernetes.io/warn" = "privileged";
+    };
+    relay.metadata.labels = {
+      "pod-security.kubernetes.io/enforce" = "privileged";
+      "pod-security.kubernetes.io/audit" = "privileged";
+      "pod-security.kubernetes.io/warn" = "privileged";
+    };
+    cert-manager = { };
+    immich = { };
+    web = { };
   };
-
-  kubernetes.resources.namespaces.immich = { };
-
-  kubernetes.resources.namespaces.cert-manager = { };
 
   kubernetes.helm.releases.local-path-provisioner = {
     chart = lppChart;
