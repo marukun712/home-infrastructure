@@ -13,6 +13,12 @@ let
       protocol = "tcp";
       target = "caddy.web.svc.cluster.local:80";
     }
+    {
+      name = "caddy-https";
+      port = 443;
+      protocol = "tcp";
+      target = "caddy.web.svc.cluster.local:443";
+    }
   ];
 
   wgSetup = ''

@@ -11,7 +11,7 @@
     metadata.namespace = "web";
     data = {
       Caddyfile = ''
-        :80 {
+        syakechan.maril.blue {
         	root * /srv
         	file_server {
         		index mai.html
@@ -22,10 +22,19 @@
     };
   };
 
+  kubernetes.resources.persistentVolumeClaims.caddy-data = {
+    metadata.namespace = "web";
+    spec = {
+      accessModes = [ "ReadWriteOnce" ];
+      resources.requests.storage = "1Gi";
+    };
+  };
+
   kubernetes.resources.deployments.caddy = {
     metadata.namespace = "web";
     spec = {
       replicas = 1;
+      strategy.type = "Recreate";
       selector.matchLabels.app = "caddy";
       template = {
         metadata.labels.app = "caddy";
@@ -37,6 +46,10 @@
                 name = "http";
                 containerPort = 80;
               }
+              {
+                name = "https";
+                containerPort = 443;
+              }
             ];
             volumeMounts = [
               {
@@ -46,6 +59,10 @@
               {
                 name = "site";
                 mountPath = "/srv";
+              }
+              {
+                name = "data";
+                mountPath = "/data";
               }
             ];
           };
@@ -74,6 +91,10 @@
                 ];
               };
             }
+            {
+              name = "data";
+              persistentVolumeClaim.claimName = "caddy-data";
+            }
           ];
         };
       };
@@ -89,6 +110,11 @@
           name = "http";
           port = 80;
           targetPort = 80;
+        }
+        {
+          name = "https";
+          port = 443;
+          targetPort = 443;
         }
       ];
     };
