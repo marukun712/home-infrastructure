@@ -27,6 +27,8 @@ talosctl config nodes $NODE_IP
 talosctl bootstrap # 初回のみ
 
 talosctl kubeconfig ./kubeconfig
+
+export KUBECONFIG=./kubeconfig
 kubectl get nodes
 ```
 

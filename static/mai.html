@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ja" data-webtui-theme="catppuccin-mocha">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>maimai.mode</title>
+  <style>
+    @layer base, utils, components;
+  </style>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@webtui/css@0.1.8/dist/full.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@webtui/theme-catppuccin@0.0.4/dist/index.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700;800&family=M+PLUS+1+Code:wght@400;700&display=swap"
+    rel="stylesheet">
+  <style>
+    body {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 4lh 2ch;
+      font-family: "JetBrains Mono", "M PLUS 1 Code", monospace;
+    }
+
+    body>div {
+      margin-bottom: 2lh;
+      padding-top: .2lh;
+      padding-bottom: .2lh;
+    }
+
+    p {
+      margin: .8lh 0;
+    }
+
+    pre {
+      background: transparent;
+      border: 0;
+      padding: 0;
+      margin: 0 0 1lh;
+      color: var(--sapphire);
+      font-family: "JetBrains Mono", monospace;
+      white-space: pre;
+      overflow-x: auto;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div box-="double round">
+    <pre id="logo"></pre>
+    <h1>麻布麻衣</h1>
+    <p>AZABU MAI / いきづらい部 副部長 / 浅草サテライト・Love学院高等学校 1年生</p>
+    <span is-="badge" variant-="sapphire">ロジカルブルー</span>
+    <span is-="badge" variant-="blue">CHAKI!</span>
+    <span is-="badge" variant-="lavender">既読待ちLovers</span>
+    <span is-="badge" variant-="mauve">AiScReam</span>
+    <div is-="separator"></div>
+    <p>今日から私のことは<b>マイマイ</b>って呼んで。<br>短い青春、効率的にさっさと頂点獲りに行くわよ。</p>
+  </div>
+
+  <div box-="square">
+    <p>mai@lhigh:~$ whoami --verbose</p>
+    <div is-="separator"></div>
+    <table>
+      <tbody>
+        <tr>
+          <td>誕生日</td>
+          <td>2月13日</td>
+        </tr>
+        <tr>
+          <td>血液型</td>
+          <td>B型</td>
+        </tr>
+        <tr>
+          <td>身長</td>
+          <td>154cm</td>
+        </tr>
+        <tr>
+          <td>住んでる場所</td>
+          <td>広尾</td>
+        </tr>
+        <tr>
+          <td>出身地</td>
+          <td>麻布</td>
+        </tr>
+        <tr>
+          <td>趣味</td>
+          <td>プログラミング/データマイニング/マイクラ</td>
+        </tr>
+        <tr>
+          <td>特技</td>
+          <td>はんだごて/DIY</td>
+        </tr>
+        <tr>
+          <td>好物</td>
+          <td>果物(メロン・ブドウ)/ハンバーガー</td>
+        </tr>
+        <tr>
+          <td>性格</td>
+          <td>合理性重視/人見知り</td>
+        </tr>
+        <tr>
+          <td>将来の夢</td>
+          <td>IT社長</td>
+        </tr>
+        <tr>
+          <td>座右の銘</td>
+          <td>万物は数である</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div box-="square">
+    <p>mai@lhigh:~$ cat profile.md</p>
+    <div is-="separator"></div>
+    <p>パソコンは合計3台所持。一番のお気に入りは、生まれる前から家にあるTRON OS搭載の古いマシン。本業はプログラミング、ついでに「いきづらい部」の副部長もやっています。</p>
+    <p>同じ学校のみんなにひとこと: 目立たないタイプです。よろしくお願いします。</p>
+  </div>
+
+  <script>
+    document.getElementById("logo").textContent =
+      " __  __     _     ___ \n" +
+      "|  \\/  |   / \\   |_ _|\n" +
+      "| |\\/| |  / _ \\   | | \n" +
+      "| |  | | / ___ \\  | | \n" +
+      "|_|  |_|/_/   \\_\\|___|";
+  </script>
+
+</body>
+
+</html>
